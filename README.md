@@ -1,0 +1,2 @@
+# CoreApi
+.net core project
