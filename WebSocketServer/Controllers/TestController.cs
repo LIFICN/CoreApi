@@ -3,7 +3,7 @@
 namespace WebSocketServer.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("[controller]")]
     public class TestController : ControllerBase
     {
         [HttpGet("get")]

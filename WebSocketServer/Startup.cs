@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using PipeWebSocket;
 using System;
 using System.Collections.Concurrent;
@@ -24,13 +26,11 @@ namespace WebSocketServer
         {
             services.AddControllers();
 
-            //services.AddLogging(builder =>
-            //{
-            //    builder.AddConsole()
-            //           .AddDebug()
-            //           .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Information)
-            //           .AddFilter<DebugLoggerProvider>(category: null, level: LogLevel.Debug);
-            //});
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole()
+                       .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Debug);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
