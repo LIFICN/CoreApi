@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.35" />
+    <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
+	  <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.7" />
+	  <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
+	  <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+	  <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoreApi.Extensions\CoreApi.Extensions.csproj" />
+    <ProjectReference Include="..\CoreApi.Models\CoreApi.Models.csproj" />
+    <ProjectReference Include="..\CoreApi.Repositories\CoreApi.Repositories.csproj" />
+    <ProjectReference Include="..\CoreApi.Services\CoreApi.Services.csproj" />
+  </ItemGroup>
+
+</Project>
