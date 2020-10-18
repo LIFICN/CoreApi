@@ -18,6 +18,10 @@ namespace CoreApi
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        public string CorsName { get => "Cors"; }
+        public static string SQLConnectionString { get; private set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,10 +30,6 @@ namespace CoreApi
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;  // Dapper支持数据库字段带下划线映射
             DapperExtension.SqlConnectionType = DapperExtension.SqlType.MySql_PostgreSql_Sqlite;  //指定扩展方法数据库类型
         }
-
-        public IConfiguration Configuration { get; }
-        public string CorsName { get => "Cors"; }
-        public static string SQLConnectionString { get; private set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -88,9 +88,9 @@ namespace CoreApi
                 jsonOptions.PropertyNameCaseInsensitive = true; //反序列化不区分大小写
                 jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; //支持CamelCase
                 jsonOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase; // 键值对驼峰命名
-                //jsonOptions.WriteIndented = true; // 是否美化json格式
-                jsonOptions.Converters.Add(new DateTimeConverter()); //转换时间格式，默认：yyyy-MM-dd HH:mm:ss
-                jsonOptions.Converters.Add(new DateTimeNullableConverter());
+                jsonOptions.Converters.Add(new DateTimeJsonConverter()); //转换时间格式，默认：yyyy-MM-dd HH:mm:ss
+                jsonOptions.Converters.Add(new DateTimeNullableJsonConverter());
+                jsonOptions.Converters.Add(new DataTableJsonConverter());
             });
 
             // 批量依赖注入

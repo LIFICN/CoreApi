@@ -25,7 +25,7 @@ namespace PipeWebSocket
         {
             var path = Config.Path;
 
-            if (context.Request.Path == path)
+            if (context.Request.Path.StartsWithSegments(path))
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {

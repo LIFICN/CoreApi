@@ -46,7 +46,7 @@ namespace WebSocketServer
                 endpoints.MapControllers();
             });
 
-            int bufferSize = 4 * 1024;  //缓冲区大小，适当增大缓冲区可减少拷贝，最好不超过8k
+            int bufferSize = 4 * 1024;  //缓冲区大小，可适当增大缓冲区，建议不超过8k
 
             app.UseWebSockets(new WebSocketOptions
             {
@@ -60,7 +60,7 @@ namespace WebSocketServer
                 {
                     string id = context.Connection.Id;
                     dic.TryAdd(id, websocket);
-                    Console.WriteLine($"{id} Opened");
+                    Console.WriteLine($"{id} opened");
                 };
                 builder.OnMessage = async (context, webSocketMsgResult, message, file) =>
                 {
@@ -68,12 +68,13 @@ namespace WebSocketServer
 
                     if (msgType == WebSocketMessageType.Text)
                     {
-                        Console.WriteLine($"Received {context.Connection.Id}: {message}");
+                        Console.WriteLine($"received {context.Connection.Id}: {message}");
                         await webSocketMsgResult.WebSocket.SendAsync(message).ConfigureAwait(false);
                     }
                     else if (msgType == WebSocketMessageType.Binary)
                     {
-                        using FileStream fileStream = new FileStream("your file path", FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                        var fullName = $"{AppContext.BaseDirectory}{context.Request.Query["fileName"]}";
+                        using FileStream fileStream = new FileStream(fullName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                         await fileStream.WriteAsync(file).ConfigureAwait(false);
                         await fileStream.FlushAsync().ConfigureAwait(false);
 
@@ -85,7 +86,7 @@ namespace WebSocketServer
                 {
                     string id = context.Connection.Id;
                     dic.TryRemove(id, out _);
-                    Console.WriteLine($"{id} Closed");
+                    Console.WriteLine($"{id} closed");
                 };
             });
         }

@@ -15,12 +15,12 @@ namespace CoreApi.Extensions
                 PropertyNameCaseInsensitive = true, //反序列化不区分大小写
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase, //支持CamelCase
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase, // 键值对驼峰命名
-                //WriteIndented = true // 是否美化json格式
             };
 
             //添加相关类型序列化转换器
-            options.Converters.Add(new DateTimeConverter());
-            options.Converters.Add(new DateTimeNullableConverter());
+            options.Converters.Add(new DateTimeJsonConverter());
+            options.Converters.Add(new DateTimeNullableJsonConverter());
+            options.Converters.Add(new DataTableJsonConverter());
             SerializerOptions = options;
         }
 
