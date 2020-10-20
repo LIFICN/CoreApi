@@ -18,7 +18,7 @@ namespace PipeWebSocket
         public Action<HttpContext, WebSocket> OnClose { get; set; }
     }
 
-    public readonly struct WebSocketMsgResult
+    public class WebSocketMsgResult
     {
         public WebSocketMessageType MessageType { get; }
         public bool EndOfMessage { get; }

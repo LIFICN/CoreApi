@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CoreApi.Services.Interfaces
 {
@@ -6,5 +7,6 @@ namespace CoreApi.Services.Interfaces
     {
         string SayService(string message);
         ValueTask<dynamic> EFCoreLeftJoinTestAsync();
+        ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize);
     }
 }

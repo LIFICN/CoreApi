@@ -43,6 +43,19 @@ namespace CoreApi.Controllers
         }
 
         /// <summary>
+        /// dapper分页测试
+        /// </summary>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">条数</param>
+        /// <returns></returns>
+        [HttpGet("[action]")]
+        public async ValueTask<dynamic> DapperPage(int pageIndex, int pageSize)
+        {
+            var (data, count) = await testService.DapperPageTestAsync<dynamic>(pageIndex, pageSize);
+            return new { data, count };
+        }
+
+        /// <summary>
         /// 获取客户端IP
         /// </summary>
         /// <returns></returns>

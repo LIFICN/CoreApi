@@ -111,7 +111,7 @@ namespace CoreApi
             #region ≈‰÷√EF Core
             services.AddDbContextPool<CoreDbContext>(options =>
             {
-                options.UseSqlite($@"Data Source={AppContext.BaseDirectory}Data\test.db");
+                options.UseSqlite($@"Data Source=E:\ToolKit\sqliteTest.db");
             }, 90);
             #endregion
         }

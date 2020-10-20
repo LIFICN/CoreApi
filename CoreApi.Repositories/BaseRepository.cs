@@ -10,58 +10,65 @@ using System.Threading.Tasks;
 
 namespace CoreApi.Repositories
 {
-    public class BaseRepository : IBaseRepository
+    public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         private readonly DbContext coreDbContext;
+
+        public DbSet<T> BaseDbSet { get; }
 
         public BaseRepository(CoreDbContext dbContext)
         {
             coreDbContext = dbContext;
+            BaseDbSet = dbContext.Set<T>();
         }
 
         public async ValueTask<bool> SaveChangesAsync() => await coreDbContext.SaveChangesAsync().ConfigureAwait(false) > 0 ? true : false;
 
         public IDbConnection GetDbConnection() => coreDbContext.Database.GetDbConnection();
 
-        public virtual async ValueTask<T> GetOneAsync<T>(Expression<Func<T, bool>> expression) where T : class
+        public virtual async ValueTask<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true)
         {
-            return await coreDbContext.Set<T>().Where(expression).FirstOrDefaultAsync().ConfigureAwait(false);
+            var query = BaseDbSet.Where(expression);
+            if (isNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<T> AddAsync<T>(T entity) where T : class
+        public virtual async ValueTask<T> AddAsync(T entity)
         {
-            coreDbContext.Set<T>().Add(entity);
+            BaseDbSet.Add(entity);
             var res = await SaveChangesAsync().ConfigureAwait(false);
             return res ? entity : null;
         }
 
-        public virtual async ValueTask<bool> UpdateAsync<T>(T entity) where T : class
+        public virtual async ValueTask<bool> UpdateAsync(T entity)
         {
-            coreDbContext.Set<T>().Update(entity);
+            BaseDbSet.Update(entity);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> DeleteAsync<T>(T entity) where T : class
+        public virtual async ValueTask<bool> DeleteAsync(T entity)
         {
-            coreDbContext.Set<T>().Remove(entity);
+            BaseDbSet.Remove(entity);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> AddRangeAsync<T>(IEnumerable<T> entities) where T : class
+        public virtual async ValueTask<bool> AddRangeAsync(IEnumerable<T> entities)
         {
-            coreDbContext.Set<T>().AddRange(entities);
+            BaseDbSet.AddRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> UpdateRangeAsync<T>(IEnumerable<T> entities) where T : class
+        public virtual async ValueTask<bool> UpdateRangeAsync(IEnumerable<T> entities)
         {
-            coreDbContext.Set<T>().UpdateRange(entities);
+            BaseDbSet.UpdateRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> DeleteRangeAsync<T>(IEnumerable<T> entities) where T : class
+        public virtual async ValueTask<bool> DeleteRangeAsync(IEnumerable<T> entities)
         {
-            coreDbContext.Set<T>().RemoveRange(entities);
+            BaseDbSet.RemoveRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
     }

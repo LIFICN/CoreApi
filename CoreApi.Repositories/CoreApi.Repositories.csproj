@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CoreApi.Extensions\CoreApi.Extensions.csproj" />
     <ProjectReference Include="..\CoreApi.Models\CoreApi.Models.csproj" />
   </ItemGroup>
 

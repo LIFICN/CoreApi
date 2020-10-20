@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace CoreApi.Repositories.Interfaces
 {
-    public interface IBaseRepository
+    public interface IBaseRepository<T> where T : class
     {
         public ValueTask<bool> SaveChangesAsync();
         public IDbConnection GetDbConnection();
-        public ValueTask<T> GetOneAsync<T>(Expression<Func<T, bool>> expression) where T : class;
-        public ValueTask<T> AddAsync<T>(T entity) where T : class;
-        public ValueTask<bool> UpdateAsync<T>(T entity) where T : class;
-        public ValueTask<bool> DeleteAsync<T>(T entity) where T : class;
-        public ValueTask<bool> AddRangeAsync<T>(IEnumerable<T> entities) where T : class;
-        public ValueTask<bool> UpdateRangeAsync<T>(IEnumerable<T> entities) where T : class;
-        public ValueTask<bool> DeleteRangeAsync<T>(IEnumerable<T> entities) where T : class;
+        public ValueTask<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true);
+        public ValueTask<T> AddAsync(T entity);
+        public ValueTask<bool> UpdateAsync(T entity);
+        public ValueTask<bool> DeleteAsync(T entity);
+        public ValueTask<bool> AddRangeAsync(IEnumerable<T> entities);
+        public ValueTask<bool> UpdateRangeAsync(IEnumerable<T> entities);
+        public ValueTask<bool> DeleteRangeAsync(IEnumerable<T> entities);
     }
 }
