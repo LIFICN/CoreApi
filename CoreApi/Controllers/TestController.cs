@@ -51,8 +51,8 @@ namespace CoreApi.Controllers
         [HttpGet("[action]")]
         public async ValueTask<dynamic> DapperPage(int pageIndex, int pageSize)
         {
-            var (data, count) = await testService.DapperPageTestAsync<dynamic>(pageIndex, pageSize);
-            return new { data, count };
+            var (data, total) = await testService.DapperPageTestAsync<dynamic>(pageIndex, pageSize);
+            return new { data, total };
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace CoreApi.Extensions
         public enum SqlType
         {
             SqlServer,
-            MySql_PostgreSql_Sqlite
+            MySql_Sqlite
         }
 
         public static SqlType? SqlConnectionType { get; set; }
@@ -35,19 +35,19 @@ namespace CoreApi.Extensions
             PageConfig p = new PageConfig();
             action?.Invoke(p);
 
-            (string templateSql, string countSql) = GetTemplateSql(conn, p);
             object param = p.Params;
+            (string templateSql, string countSql) = GetTemplateSql(p);
 
             if (conn.State == ConnectionState.Closed) conn.Open();
 
             using var trans = conn.BeginTransaction();
             var data = await conn.QueryAsync<T>(templateSql, param, trans).ConfigureAwait(false);
-            int count = await conn.ExecuteScalarAsync<int>(countSql, param, trans).ConfigureAwait(false);
+            int total = await conn.ExecuteScalarAsync<int>(countSql, param, trans).ConfigureAwait(false);
             trans.Commit();
-            return (data, count);
+            return (data, total);
         }
 
-        internal static ValueTuple<string, string> GetTemplateSql(in IDbConnection conn, in PageConfig p)
+        internal static ValueTuple<string, string> GetTemplateSql(PageConfig p)
         {
             if (p == null || p.TableName == null || p.TableName.Length == 0 || string.IsNullOrWhiteSpace(p.KeyColumn))
                 throw new Exception("dapper page method params was error");
@@ -74,7 +74,7 @@ namespace CoreApi.Extensions
             {
                 templateBuild.Append($"select {p.Column},row_number() over({order}) as rowNum from ");
             }
-            else if (SqlConnectionType == SqlType.MySql_PostgreSql_Sqlite)
+            else if (SqlConnectionType == SqlType.MySql_Sqlite)
             {
                 templateBuild.Append($"select {p.Column} from ");
             }
@@ -101,23 +101,13 @@ namespace CoreApi.Extensions
             {
                 templateBuild.Append($" {where} rowNum > {startRow} and rowNum <= {startRow + p.PageSize}");
             }
-            else if (SqlConnectionType == SqlType.MySql_PostgreSql_Sqlite)
+            else if (SqlConnectionType == SqlType.MySql_Sqlite)
             {
                 templateBuild.Append($@" join (select {key} from {mainTable} {where} {order} 
                            LIMIT {p.PageSize} OFFSET {startRow}) as t on {mainTable}.{key} = t.{key}");
             }
 
             return (templateBuild.ToString(), countBuild.ToString());
-        }
-
-        public static DataTable GetDataTable(this IDbConnection conn, string strSql, object param = null)
-        {
-            using var dataReader = conn.ExecuteReader(strSql, param);
-            if (dataReader == null) return null;
-
-            DataTable table = new DataTable();
-            table.Load(dataReader);
-            return table;
         }
 
         #region sql server bulk copy

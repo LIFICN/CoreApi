@@ -26,9 +26,8 @@ namespace CoreApi
         {
             Configuration = configuration;
             SQLConnectionString = configuration.GetValue<string>("SQLConnectionString");
-
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;  // Dapper支持数据库字段带下划线映射
-            DapperExtension.SqlConnectionType = DapperExtension.SqlType.MySql_PostgreSql_Sqlite;  //指定扩展方法数据库类型
+            DapperExtension.SqlConnectionType = DapperExtension.SqlType.MySql_Sqlite;  //指定扩展方法数据库类型
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -38,9 +37,6 @@ namespace CoreApi
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
-
-            //启用Gzip和Brotli格式压缩,将无法使用Nginx压缩
-            services.AddResponseCompression();
 
             #region 跨域处理
             services.AddCors(option =>
@@ -120,9 +116,6 @@ namespace CoreApi
         {
             //反向代理时获取真实IP
             app.UseForwardedHeaders();
-
-            //启用.net core自带压缩
-            app.UseResponseCompression();
 
             // 使用跨域策略
             app.UseCors(CorsName);
