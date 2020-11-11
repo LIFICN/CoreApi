@@ -109,23 +109,5 @@ namespace CoreApi.Extensions
 
             return (templateBuild.ToString(), countBuild.ToString());
         }
-
-        #region sql server bulk copy
-        //public static async ValueTask BulkCopyAsync(this SqlConnection conn, string tableName, DataTable table)
-        //{
-        //    using SqlBulkCopy bulkCopy = new SqlBulkCopy(conn)
-        //    {
-        //        DestinationTableName = tableName,
-        //        BatchSize = table.Rows.Count
-        //    };
-
-        //    foreach (DataColumn column in table.Columns)
-        //    {
-        //        bulkCopy.ColumnMappings.Add(column.ColumnName, column.ColumnName);
-        //    }
-
-        //    await bulkCopy.WriteToServerAsync(table).ConfigureAwait(false);
-        //}
-        #endregion
     }
 }

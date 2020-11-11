@@ -2,6 +2,7 @@
 using CoreApi.Models;
 using CoreApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,21 +20,27 @@ namespace CoreApi.Repositories
 
         public string Say(string message) => message;
 
-        public async ValueTask<dynamic> EFCoreLeftJoinTestAsync()
+        public async ValueTask<ValueTuple<dynamic, int>> EFCoreLeftJoinTestAsync(int pageIndex, int pageSize)
         {
-            return await (from t1 in base.BaseDbSet
-                          join t2 in coreDbContext.Set<TestEntity2>() on t1.ID equals t2.ID
-                          into temp
-                          from sub in temp.DefaultIfEmpty()
-                          select new TestEntity2
-                          {
-                              ID = t1.ID,
-                              Name = sub == null ? default : sub.Name
-                          }
-                        )
-                        .AsNoTracking()
-                        .ToListAsync()
-                        .ConfigureAwait(false);
+            using var trans = coreDbContext.Database.BeginTransaction();
+            var data = await (from t1 in base.BaseDbSet
+                              join t2 in coreDbContext.Set<TestEntity2>() on t1.ID equals t2.ID
+                              into temp
+                              from sub in temp.DefaultIfEmpty()
+                              select new TestEntity2
+                              {
+                                  ID = t1.ID,
+                                  Name = sub == null ? default : sub.Name
+                              })
+                            .Skip((pageIndex - 1) * pageSize)
+                            .Take(pageSize)
+                            .AsNoTracking()
+                            .ToListAsync()
+                            .ConfigureAwait(false);
+
+            var total = await base.BaseDbSet.CountAsync().ConfigureAwait(false);
+            trans.Commit();
+            return (data, total);
         }
 
         public async ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)

@@ -33,17 +33,18 @@ namespace CoreApi.Controllers
         }
 
         /// <summary>
-        /// EF Core Left Join查询测试
+        /// EF Core 多表分页查询测试
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ef")]
-        public async ValueTask<IActionResult> Get()
+        [HttpGet("ef-page")]
+        public async ValueTask<IActionResult> Get(int pageIndex, int pageSize)
         {
-            return Ok(await testService.EFCoreLeftJoinTestAsync());
+            (dynamic data, int total) = await testService.EFCoreLeftJoinTestAsync(pageIndex, pageSize);
+            return Ok(new { data, total });
         }
 
         /// <summary>
-        /// dapper分页测试
+        /// dapper多表分页测试
         /// </summary>
         /// <param name="pageIndex">页码</param>
         /// <param name="pageSize">条数</param>
