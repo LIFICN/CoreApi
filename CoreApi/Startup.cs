@@ -69,14 +69,6 @@ namespace CoreApi
             {
                 options.SuppressModelStateInvalidFilter = true;  //去除自带模型验证
             })
-            // 用Newtonsoft.Json处理Json
-            // .AddNewtonsoftJson(options =>
-            // {
-            //   options.SerializerSettings.ContractResolver = JsonOuterSerializer.Settings.ContractResolver;
-            //   options.SerializerSettings.Formatting = JsonOuterSerializer.Settings.Formatting;
-            //   options.SerializerSettings.DateFormatHandling = JsonOuterSerializer.Settings.DateFormatHandling;
-            //   options.SerializerSettings.DateFormatString = JsonOuterSerializer.Settings.DateFormatString;
-            // });
             .AddJsonOptions(options =>
             {
                 var jsonOptions = options.JsonSerializerOptions;
