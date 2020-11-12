@@ -23,22 +23,19 @@ namespace CoreApi.Repositories
         public async ValueTask<ValueTuple<dynamic, int>> EFCoreLeftJoinTestAsync(int pageIndex, int pageSize)
         {
             using var trans = coreDbContext.Database.BeginTransaction();
-            var data = await (from t1 in base.BaseDbSet
-                              join t2 in coreDbContext.Set<TestEntity2>() on t1.ID equals t2.ID
-                              into temp
-                              from sub in temp.DefaultIfEmpty()
-                              select new TestEntity2
-                              {
-                                  ID = t1.ID,
-                                  Name = sub == null ? default : sub.Name
-                              })
-                            .Skip((pageIndex - 1) * pageSize)
-                            .Take(pageSize)
-                            .AsNoTracking()
-                            .ToListAsync()
-                            .ConfigureAwait(false);
+            var query = (from t1 in base.BaseDbSet
+                         join t2 in coreDbContext.Set<TestEntity2>() on t1.ID equals t2.ID
+                         into temp
+                         from sub in temp.DefaultIfEmpty()
+                         select new TestEntity2
+                         {
+                             ID = t1.ID,
+                             Name = sub == null ? default : sub.Name
+                         });
 
-            var total = await base.BaseDbSet.CountAsync().ConfigureAwait(false);
+
+            var data = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync().ConfigureAwait(false);
+            var total = await query.CountAsync().ConfigureAwait(false);
             trans.Commit();
             return (data, total);
         }
