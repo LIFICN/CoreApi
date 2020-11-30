@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -65,8 +64,8 @@ namespace PipeWebSocket
 
         private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket, CancellationToken token)
         {
-            using IMemoryOwner<byte> bufferPool = MemoryPool<byte>.Shared.Rent(ReceiveBufferSize);
-            var buffer = bufferPool.Memory;
+            using PoolArrayBuffer<byte> bufferPool = new PoolArrayBuffer<byte>(ReceiveBufferSize);
+            var buffer = new Memory<byte>(bufferPool.Buffer);
             Memory<byte> memory = Memory<byte>.Empty;
 
             while (true)

@@ -52,7 +52,7 @@ namespace IdentityServerApi
 
             return new Claim[]
             {
-                new Claim(ClaimTypes.Name, $"{loginName}"),
+                new Claim(ClaimTypes.Name, loginName),
                 new Claim(ClaimTypes.Role,"Admin")
             };
         }

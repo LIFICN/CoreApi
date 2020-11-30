@@ -14,7 +14,7 @@ namespace WebSocketServer
 {
     public class Startup
     {
-        public static ConcurrentDictionary<string, WebSocket> dic = new ConcurrentDictionary<string, WebSocket>();
+        public static readonly ConcurrentDictionary<string, WebSocket> WebSocketCache = new ConcurrentDictionary<string, WebSocket>();
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -29,7 +29,7 @@ namespace WebSocketServer
             services.AddLogging(builder =>
             {
                 builder.AddConsole()
-                       .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Debug);
+                       .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Warning);
             });
         }
 
@@ -54,15 +54,15 @@ namespace WebSocketServer
                 ReceiveBufferSize = bufferSize
             });
 
-            app.UseWebSocketServerMiddleware("/", bufferSize, builder =>
+            app.UseWebSocketServerMiddleware("/", bufferSize, options =>
             {
-                builder.OnOpen = (context, websocket) =>
+                options.OnOpen = (context, websocket) =>
                 {
                     string id = context.Connection.Id;
-                    dic.TryAdd(id, websocket);
+                    WebSocketCache.TryAdd(id, websocket);
                     Console.WriteLine($"{id} opened");
                 };
-                builder.OnMessage = async (context, webSocketMsgResult, message, file) =>
+                options.OnMessage = async (context, webSocketMsgResult, message, file) =>
                 {
                     var msgType = webSocketMsgResult.MessageType;
 
@@ -82,10 +82,10 @@ namespace WebSocketServer
                             Console.WriteLine("file received completed");
                     }
                 };
-                builder.OnClose = (context, webSocket) =>
+                options.OnClose = (context, webSocket) =>
                 {
                     string id = context.Connection.Id;
-                    dic.TryRemove(id, out _);
+                    WebSocketCache.TryRemove(id, out _);
                     Console.WriteLine($"{id} closed");
                 };
             });

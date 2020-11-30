@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using System;
-using System.Collections.Generic;
 using System.Net.WebSockets;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,12 +12,12 @@ namespace PipeWebSocket
         public static async ValueTask SendAsync(this WebSocket webSocket, string msg)
         {
             var msgByte = new Memory<byte>(Encoding.UTF8.GetBytes(msg));
-            await webSocket.SendAsync(msgByte, WebSocketMessageType.Text, true, CancellationToken.None);
+            await webSocket.SendAsync(msgByte, WebSocketMessageType.Text, true, CancellationToken.None).ConfigureAwait(false);
         }
 
         public static async ValueTask CloseAsync(this WebSocket webSocket)
         {
-            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, webSocket.CloseStatusDescription, CancellationToken.None);
+            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, webSocket.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
         }
 
         public static void UseWebSocketServerMiddleware(this IApplicationBuilder app, string path, int bufferSize, Action<WebSocketConfigAction> action)
@@ -41,36 +38,14 @@ namespace PipeWebSocket
         }
     }
 
-    internal static class ListExtension
-    {
-        static class ArrayAccessor<T>
-        {
-            public static Func<List<T>, T[]> Getter;
-
-            static ArrayAccessor()
-            {
-                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard, typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ArrayAccessor<T>), true);
-                var il = dm.GetILGenerator();
-                il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
-                il.Emit(OpCodes.Ldfld, typeof(List<T>).GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance)); // Replace argument by field
-                il.Emit(OpCodes.Ret); // Return field
-                Getter = (Func<List<T>, T[]>)dm.CreateDelegate(typeof(Func<List<T>, T[]>));
-            }
-        }
-
-        public static Span<T> GetInternalSpan<T>(this List<T> list)
-        {
-            return new Span<T>(ArrayAccessor<T>.Getter(list));
-        }
-    }
-
     public static class MemoryExtension
     {
-        public static Memory<T> Append<T>(this Memory<T> self, in Memory<T> memory)
+        public static Memory<T> Append<T>(this Memory<T> self, in Memory<T> next)
         {
-            Memory<T> newMemory = new T[self.Length + memory.Length];
-            self.CopyTo(newMemory.Slice(0, self.Length));
-            memory.CopyTo(newMemory.Slice(self.Length, memory.Length));
+            Memory<T> newMemory = new T[self.Length + next.Length];
+            var newSpan = newMemory.Span;
+            self.Span.CopyTo(newSpan.Slice(0, self.Length));
+            next.Span.CopyTo(newSpan.Slice(self.Length, next.Length));
             return newMemory;
         }
     }
