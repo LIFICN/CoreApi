@@ -65,6 +65,9 @@ namespace CoreApi.Controllers
         [HttpGet("merge")]
         public async ValueTask<IActionResult> MergeFiles(string mergeFileName, string sliceName, string sliceType)
         {
+            var filePath = $"{FilePath}/{mergeFileName}";
+            if (System.IO.File.Exists(filePath)) return BadRequest("文件已存在,合并失败");
+
             var sliceNameLength = sliceName.Length;
             var rootLength = FilePath.Length;
             var sliceTypeLength = sliceType.Length;
@@ -74,22 +77,18 @@ namespace CoreApi.Controllers
                 return int.Parse(span.Slice(0, span.Length - sliceTypeLength));
             }).ToArray();
 
-            if (list != null && list.Any())
+            if (list == null || !list.Any()) return BadRequest("文件切片不存在,合并失败");
+
+            using FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write);
+            foreach (var path in list)
             {
-                using FileStream fileStream = new FileStream($"{FilePath}/{mergeFileName}", FileMode.Create, FileAccess.Write, FileShare.Write);
-
-                foreach (var son in list)
-                {
-                    using FileStream sonStream = new FileStream(son, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    await sonStream.CopyToAsync(fileStream).ConfigureAwait(false);
-                    sonStream.Flush();
-                }
-
-                foreach (var son in list)
-                {
-                    System.IO.File.Delete(son);
-                }
+                using FileStream sliceStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                await sliceStream.CopyToAsync(fileStream).ConfigureAwait(false);
+                sliceStream.Flush();
             }
+
+            foreach (var path in list)
+                System.IO.File.Delete(path);
 
             return Ok("合并成功");
         }
