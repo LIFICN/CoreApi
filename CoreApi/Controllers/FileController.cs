@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CoreApi.Controllers
@@ -52,6 +53,45 @@ namespace CoreApi.Controllers
 
             var fileStream = System.IO.File.OpenRead(path);
             return File(fileStream, "application/octet-stream", fileName);
+        }
+
+        /// <summary>
+        /// 文件切片合并
+        /// </summary>
+        /// <param name="mergeFileName">合并后的文件名</param>
+        /// <param name="sliceName">单个文件切片的文件名(切片标识符)</param>
+        /// <param name="sliceType">单个文件切片的格式(如:.txt,.zip)</param>
+        /// <returns></returns>
+        [HttpGet("merge")]
+        public async ValueTask<IActionResult> MergeFiles(string mergeFileName, string sliceName, string sliceType)
+        {
+            var sliceNameLength = sliceName.Length;
+            var rootLength = FilePath.Length;
+            var sliceTypeLength = sliceType.Length;
+            var list = Directory.EnumerateFiles(FilePath).Where(d => d.LastIndexOf(sliceName) > -1).OrderBy(d =>
+            {
+                var span = d.AsSpan(rootLength + 1).Slice(sliceNameLength);
+                return int.Parse(span.Slice(0, span.Length - sliceTypeLength));
+            }).ToArray();
+
+            if (list != null && list.Any())
+            {
+                using FileStream fileStream = new FileStream($"{FilePath}/{mergeFileName}", FileMode.Create, FileAccess.Write, FileShare.Write);
+
+                foreach (var son in list)
+                {
+                    using FileStream sonStream = new FileStream(son, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    await sonStream.CopyToAsync(fileStream).ConfigureAwait(false);
+                    sonStream.Flush();
+                }
+
+                foreach (var son in list)
+                {
+                    System.IO.File.Delete(son);
+                }
+            }
+
+            return Ok("合并成功");
         }
     }
 }
