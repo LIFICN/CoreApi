@@ -28,7 +28,7 @@ namespace PipeWebSocket
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
+                    using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
                     Config.ConfigAction.OnOpen?.Invoke(context, webSocket);
                     await ProcessAsync(context, webSocket).ConfigureAwait(false);
                 }
@@ -65,14 +65,13 @@ namespace PipeWebSocket
         private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket, CancellationToken token)
         {
             using PoolArrayBuffer<byte> bufferPool = new PoolArrayBuffer<byte>(ReceiveBufferSize);
-            var buffer = new Memory<byte>(bufferPool.Buffer);
             Memory<byte> memory = Memory<byte>.Empty;
 
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
+                var result = await webSocket.ReceiveAsync(bufferPool.Buffer, token).ConfigureAwait(false);
                 var bytesReceive = result.Count;
-                var receiveMemory = buffer.Slice(0, bytesReceive);
+                var receiveMemory = bufferPool.Buffer.AsMemory(0, bytesReceive);
 
                 if (result.MessageType == WebSocketMessageType.Text)
                 {

@@ -42,11 +42,11 @@ namespace PipeWebSocket
     {
         public static Memory<T> Append<T>(this Memory<T> self, in Memory<T> next)
         {
-            Memory<T> newMemory = new T[self.Length + next.Length];
-            var newSpan = newMemory.Span;
+            T[] newArray = new T[self.Length + next.Length];
+            var newSpan = newArray.AsSpan();
             self.Span.CopyTo(newSpan.Slice(0, self.Length));
             next.Span.CopyTo(newSpan.Slice(self.Length, next.Length));
-            return newMemory;
+            return newArray;
         }
     }
 }

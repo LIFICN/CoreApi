@@ -29,7 +29,7 @@ namespace WebSocketServer
             services.AddLogging(builder =>
             {
                 builder.AddConsole()
-                       .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Warning);
+                       .AddFilter<ConsoleLoggerProvider>(category: null, level: LogLevel.Information);
             });
         }
 
