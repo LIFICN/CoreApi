@@ -72,10 +72,10 @@ namespace CoreApi.Controllers
             var rootLength = FilePath.Length;
             var sliceTypeLength = sliceType.Length;
             var list = Directory.EnumerateFiles(FilePath).Where(d => d.LastIndexOf(sliceName) > -1).OrderBy(d =>
-            {
-                var span = d.AsSpan(rootLength + 1).Slice(sliceNameLength);
-                return int.Parse(span.Slice(0, span.Length - sliceTypeLength));
-            }).ToArray();
+              {
+                  var span = d.AsSpan(rootLength + 1).Slice(sliceNameLength);
+                  return int.Parse(span.Slice(0, span.Length - sliceTypeLength));
+              }).ToArray();
 
             if (list == null || !list.Any()) return BadRequest("文件切片不存在,合并失败");
 
@@ -86,6 +86,8 @@ namespace CoreApi.Controllers
                 await sliceStream.CopyToAsync(fileStream).ConfigureAwait(false);
                 sliceStream.Flush();
             }
+
+            fileStream.Flush();
 
             foreach (var path in list)
                 System.IO.File.Delete(path);
