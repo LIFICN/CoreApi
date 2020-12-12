@@ -12,7 +12,7 @@ namespace CoreApi.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var models = Assembly.GetExecutingAssembly().GetTypes()
+            var models = Assembly.Load("CoreApi.Models").GetTypes()
                        .Where(d => d.CustomAttributes.FirstOrDefault(
                            x => x.AttributeType.Namespace.Contains("System.ComponentModel")) != null && d.IsClass);
 
