@@ -39,7 +39,7 @@ namespace CoreApi.Controllers
         [HttpGet("ef-page")]
         public async ValueTask<IActionResult> Get(int pageIndex, int pageSize)
         {
-            (dynamic data, int total) = await testService.EFCoreLeftJoinTestAsync(pageIndex, pageSize);
+            (dynamic data, int total) = await testService.GetListAsync(pageIndex, pageSize);
             return Ok(new { data, total });
         }
 
@@ -52,7 +52,7 @@ namespace CoreApi.Controllers
         [HttpGet("[action]")]
         public async ValueTask<dynamic> DapperPage(int pageIndex, int pageSize)
         {
-            var (data, total) = await testService.DapperPageTestAsync<dynamic>(pageIndex, pageSize);
+            var (data, total) = await testService.GetPageListAsync<dynamic>(pageIndex, pageSize);
             return new { data, total };
         }
 

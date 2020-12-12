@@ -2,6 +2,7 @@ using CoreApi.Extensions;
 using CoreApi.Filters;
 using CoreApi.Middleware;
 using CoreApi.Models;
+using CoreApi.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -84,6 +85,7 @@ namespace CoreApi
             // 批量依赖注入
             services.AddScoped("CoreApi.Repositories", true);
             services.AddScoped("CoreApi.Services");
+            services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
             #region 启用IHttpClientFactory
             services.AddHttpClient("identityServer", config =>

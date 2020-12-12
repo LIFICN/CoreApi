@@ -7,7 +7,7 @@ namespace CoreApi.Services.Interfaces
     public interface ITestService
     {
         string SayService(string message);
-        ValueTask<ValueTuple<dynamic, int>> EFCoreLeftJoinTestAsync(int pageIndex, int pageSize);
-        ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize);
+        ValueTask<ValueTuple<dynamic, int>> GetListAsync(int pageIndex, int pageSize);
+        ValueTask<(IEnumerable<T>, int)> GetPageListAsync<T>(int pageIndex, int pageSize);
     }
 }

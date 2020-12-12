@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace CoreApi.Extensions
 
         public static SqlType? SqlConnectionType { get; set; }
 
-        public static async ValueTask<(IEnumerable<T>, int)> PageAsync<T>(this IDbConnection conn, Action<PageConfig> action)
+        public static async ValueTask<(List<T>, int)> PageAsync<T>(this IDbConnection conn, Action<PageConfig> action)
         {
             PageConfig p = new PageConfig();
             action?.Invoke(p);
@@ -44,7 +45,7 @@ namespace CoreApi.Extensions
             var data = await conn.QueryAsync<T>(templateSql, param, trans).ConfigureAwait(false);
             int total = await conn.ExecuteScalarAsync<int>(countSql, param, trans).ConfigureAwait(false);
             trans.Commit();
-            return (data, total);
+            return (data.ToList(), total);
         }
 
         internal static ValueTuple<string, string> GetTemplateSql(PageConfig p)

@@ -1,40 +1,45 @@
-﻿using CoreApi.Extensions;
-using CoreApi.Models;
+﻿using CoreApi.Models;
 using CoreApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CoreApi.Repositories
 {
     public class TestRepository : BaseRepository<TestEntity1>, ITestRepository
     {
-        private readonly CoreDbContext coreDbContext;
 
         public TestRepository(CoreDbContext dbContext) : base(dbContext)
         {
-            coreDbContext = dbContext;
         }
 
         public string Say(string message) => message;
 
-        public async ValueTask<ValueTuple<dynamic, int>> EFCoreLeftJoinTestAsync(int pageIndex, int pageSize)
+        public override async ValueTask<(List<TestEntity1>, int)> GetListAsync(Expression<Func<TestEntity1, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
         {
-            using var trans = coreDbContext.Database.BeginTransaction();
+            using var trans = base.BeginTransaction();
             var query = (from t1 in base.BaseDbSet
-                         join t2 in coreDbContext.Set<TestEntity2>() on t1.ID equals t2.ID
+                         join t2 in base.GetDbSet<TestEntity2>() on t1.ID equals t2.ID
                          into temp
                          from sub in temp.DefaultIfEmpty()
-                         select new TestEntity2
+                         select new TestEntity1
                          {
                              ID = t1.ID,
                              Name = sub == null ? default : sub.Name
-                         });
+                         })
+                         .Skip((pageIndex - 1) * pageSize)
+                         .Take(pageSize);
 
+            if (expression != null)
+                query = query.Where(expression);
 
-            var data = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync().ConfigureAwait(false);
+            if (isNoTracking)
+                query = query.AsNoTracking();
+
+            var data = await query.ToListAsync().ConfigureAwait(false);
             var total = await query.CountAsync().ConfigureAwait(false);
             trans.Commit();
             return (data, total);
@@ -42,7 +47,7 @@ namespace CoreApi.Repositories
 
         public async ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)
         {
-            return await base.GetDbConnection().PageAsync<T>(p =>
+            return await base.GetPageListAsync<T>(p =>
             {
                 p.TableName = new string[] { "test1", "test2" };
                 p.KeyColumn = "id";
