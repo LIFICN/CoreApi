@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CoreApi.Extensions
@@ -67,48 +66,41 @@ namespace CoreApi.Extensions
             string order = !string.IsNullOrWhiteSpace(p.Order) ? $"order by { p.Order}" :
                            SqlConnectionType == SqlType.SqlServer ? $"order by { p.KeyColumn}" : string.Empty;
 
-            StringBuilder templateBuild = new StringBuilder();
-            StringBuilder countBuild = new StringBuilder();
-            countBuild.Append($"select count(1) from ");
+            string templateSql = string.Empty;
+            string countSql = "select count(1) from ";
 
             if (SqlConnectionType == SqlType.SqlServer)
-            {
-                templateBuild.Append($"select {p.Column},row_number() over({order}) as rowNum from ");
-            }
+                templateSql = templateSql.Append($"select {p.Column},row_number() over({order}) as rowNum from ");
+
             else if (SqlConnectionType == SqlType.MySql_Sqlite)
-            {
-                templateBuild.Append($"select {p.Column} from ");
-            }
+                templateSql = templateSql.Append($"select {p.Column} from ");
 
             for (int i = 0; i < tableName.Length; i++)
             {
                 if (i == 0)
                 {
                     mainTable = tableName[i];
-                    templateBuild.Append(mainTable);
-                    countBuild.Append(mainTable);
+                    templateSql = templateSql.Append(mainTable);
+                    countSql = countSql.Append(mainTable);
                 }
                 else
                 {
                     string joinSql = $" left join {tableName[i]} on {on[i - 1]} ";
-                    templateBuild.Append(joinSql);
-                    countBuild.Append(joinSql);
+                    templateSql = templateSql.Append(joinSql);
+                    countSql = countSql.Append(joinSql);
                 }
             }
 
-            countBuild.Append($" {where}");
+            countSql = countSql.Append($" {where}");
 
             if (SqlConnectionType == SqlType.SqlServer)
-            {
-                templateBuild.Append($" {where} rowNum > {startRow} and rowNum <= {startRow + p.PageSize}");
-            }
-            else if (SqlConnectionType == SqlType.MySql_Sqlite)
-            {
-                templateBuild.Append($@" join (select {key} from {mainTable} {where} {order} 
-                           LIMIT {p.PageSize} OFFSET {startRow}) as t on {mainTable}.{key} = t.{key}");
-            }
+                templateSql = templateSql.Append($" {where} rowNum > {startRow} and rowNum <= {startRow + p.PageSize}");
 
-            return (templateBuild.ToString(), countBuild.ToString());
+            else if (SqlConnectionType == SqlType.MySql_Sqlite)
+                templateSql = templateSql.Append($@" join (select {key} from {mainTable} {where} {order} 
+                           LIMIT {p.PageSize} OFFSET {startRow}) as t on {mainTable}.{key} = t.{key}");
+
+            return (templateSql, countSql);
         }
     }
 }
