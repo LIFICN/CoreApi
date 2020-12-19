@@ -29,9 +29,8 @@ namespace CoreApi.Repositories
                          {
                              ID = t1.ID,
                              Name = sub == null ? default : sub.Name
-                         })
-                         .Skip((pageIndex - 1) * pageSize)
-                         .Take(pageSize);
+                         });
+
 
             if (expression != null)
                 query = query.Where(expression);
@@ -39,7 +38,7 @@ namespace CoreApi.Repositories
             if (isNoTracking)
                 query = query.AsNoTracking();
 
-            var data = await query.ToListAsync().ConfigureAwait(false);
+            var data = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync().ConfigureAwait(false);
             var total = await query.CountAsync().ConfigureAwait(false);
             trans.Commit();
             return (data, total);
