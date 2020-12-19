@@ -34,6 +34,16 @@ namespace CoreApi.Repositories
             return coreDbContext.Set<TResult>();
         }
 
+        /// <summary>
+        /// 该方法走的是Dapper,走事务查询
+        /// </summary>
+        /// <returns></returns>
+        public async ValueTask<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action)
+        {
+            var dbConnection = GetDbConnection();
+            return await dbConnection.PageAsync<TResult>(action).ConfigureAwait(false);
+        }
+
         public virtual async ValueTask<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
         {
             var query = BaseDbSet.Where(expression).Skip((pageIndex - 1) * pageSize).Take(pageSize);
@@ -52,16 +62,6 @@ namespace CoreApi.Repositories
                 query = query.AsNoTracking();
 
             return await query.FirstOrDefaultAsync().ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 该方法走的是Dapper
-        /// </summary>
-        /// <returns></returns>
-        public async ValueTask<(List<TResult>, int)> GetPageListAsync<TResult>(Action<DapperExtension.PageConfig> action)
-        {
-            var dbConnection = GetDbConnection();
-            return await dbConnection.PageAsync<TResult>(action).ConfigureAwait(false);
         }
 
         public virtual async ValueTask<T> AddAsync(T entity)

@@ -47,7 +47,7 @@ namespace CoreApi.Repositories
 
         public async ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)
         {
-            return await base.GetPageListAsync<T>(p =>
+            return await base.GetListAsync<T>(p =>
             {
                 p.TableName = new string[] { "test1", "test2" };
                 p.KeyColumn = "id";

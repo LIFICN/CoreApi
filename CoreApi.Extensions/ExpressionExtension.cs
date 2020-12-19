@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Mvc.Util
+namespace CoreApi.Extensions
 {
     public class ParameterRebinder : ExpressionVisitor
     {
