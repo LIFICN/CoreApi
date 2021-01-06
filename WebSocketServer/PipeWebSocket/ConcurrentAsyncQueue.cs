@@ -71,7 +71,7 @@ namespace PipeWebSocket
 
             await Task.WhenAll(tasks);  //等待消费线程执行完成
             cts.Cancel();  //结束线程池任务
-            tasks.Clear(); //清理线程池
+            tasks = null; //标记清理线程池
             ResetState(); //重置状态
         }
 
