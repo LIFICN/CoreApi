@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace CoreApi.Extensions
 {
-    public class ParameterRebinder : ExpressionVisitor
+    internal class ParameterRebinder : ExpressionVisitor
     {
         private readonly Dictionary<ParameterExpression, ParameterExpression> map;
 
@@ -27,7 +27,8 @@ namespace CoreApi.Extensions
             return base.VisitParameter(p);
         }
     }
-    public static class LambdaHelper
+
+    public static class LambdaExtension
     {
         public static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second, Func<Expression, Expression, Expression> merge)
         {
@@ -44,6 +45,11 @@ namespace CoreApi.Extensions
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)
         {
             return first.Compose(second, Expression.Or);
+        }
+
+        public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool flag, Expression<Func<T, bool>> predicate)
+        {
+            return flag ? query.Where(predicate) : query;
         }
     }
 }

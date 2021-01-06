@@ -1,4 +1,5 @@
-﻿using CoreApi.Models;
+﻿using CoreApi.Extensions;
+using CoreApi.Models;
 using CoreApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +12,6 @@ namespace CoreApi.Repositories
 {
     public class TestRepository : BaseRepository<TestEntity1>, ITestRepository
     {
-
         public TestRepository(CoreDbContext dbContext) : base(dbContext)
         {
         }
@@ -31,12 +31,8 @@ namespace CoreApi.Repositories
                              Name = sub == null ? default : sub.Name
                          });
 
-
-            if (expression != null)
-                query = query.Where(expression);
-
-            if (isNoTracking)
-                query = query.AsNoTracking();
+            query = query.WhereIf(expression != null, expression);
+            if (isNoTracking) query = query.AsNoTracking();
 
             var data = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync().ConfigureAwait(false);
             var total = await query.CountAsync().ConfigureAwait(false);

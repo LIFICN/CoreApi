@@ -40,15 +40,14 @@ namespace CoreApi.Repositories
         /// <returns></returns>
         public async ValueTask<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action)
         {
-            var dbConnection = GetDbConnection();
+            var dbConnection = GetDbConnection(); //请勿释放
             return await dbConnection.PageAsync<TResult>(action).ConfigureAwait(false);
         }
 
         public virtual async ValueTask<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
         {
             var query = BaseDbSet.Where(expression).Skip((pageIndex - 1) * pageSize).Take(pageSize);
-            if (isNoTracking)
-                query = query.AsNoTracking();
+            if (isNoTracking) query = query.AsNoTracking();
 
             var res = await query.ToListAsync().ConfigureAwait(false);
             var total = await query.CountAsync().ConfigureAwait(false);
@@ -58,8 +57,7 @@ namespace CoreApi.Repositories
         public virtual async ValueTask<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true)
         {
             var query = BaseDbSet.Where(expression);
-            if (isNoTracking)
-                query = query.AsNoTracking();
+            if (isNoTracking) query = query.AsNoTracking();
 
             return await query.FirstOrDefaultAsync().ConfigureAwait(false);
         }
