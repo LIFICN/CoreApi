@@ -38,8 +38,7 @@ namespace PipeWebSocket
 
             queue.Enqueue(obj);
 
-            if (!IsRunning)
-                CreateTasks();
+            if (!IsRunning) CreateTasks();
         }
 
         private void Listening()
@@ -71,18 +70,18 @@ namespace PipeWebSocket
             }
 
             await Task.WhenAll(tasks);  //等待消费线程执行完成
-            ResetState(); //重置状态
-            cts.Cancel();  //结束线程池
+            cts.Cancel();  //结束线程池任务
             tasks.Clear(); //清理线程池
+            ResetState(); //重置状态
         }
 
         public void ResetAll()
         {
             if (queue == null || cts == null) return;
 
-            ResetState();
-            queue.Clear();
             cts.Cancel();
+            queue.Clear();
+            ResetState();
         }
 
         private void ResetState() => _ = Interlocked.Exchange(ref isProcessing, UnProcessing);
