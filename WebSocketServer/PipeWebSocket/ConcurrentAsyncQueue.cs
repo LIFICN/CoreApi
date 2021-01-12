@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -62,11 +61,11 @@ namespace PipeWebSocket
         private async void CreateTasks()
         {
             cts = new CancellationTokenSource();
-            List<Task> tasks = new List<Task>(ThreadCount);
+            Task[] tasks = new Task[ThreadCount];
             for (int i = 0; i < ThreadCount; i++)
             {
                 var task = Task.Factory.StartNew(() => Listening(), cts.Token);
-                tasks.Add(task);
+                tasks[i] = task;
             }
 
             await Task.WhenAll(tasks);  //等待消费线程执行完成
