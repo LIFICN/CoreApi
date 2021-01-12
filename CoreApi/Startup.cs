@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System;
 using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -21,7 +20,7 @@ namespace CoreApi
     {
         public IConfiguration Configuration { get; }
         public string CorsName { get => "Cors"; }
-        public static string SQLConnectionString { get; private set; }
+        public string SQLConnectionString { get; }
 
         public Startup(IConfiguration configuration)
         {
@@ -49,17 +48,7 @@ namespace CoreApi
             });
             #endregion
 
-            #region 添加IdentityServer 客户端验证
-            services.AddAuthorization();
-            services.AddAuthentication("Bearer")
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "http://localhost:10086";    //配置Identityserver的授权地址
-                    options.RequireHttpsMetadata = false;           //是否需要https    
-                    options.ApiName = "test";  //api的name，需要和config的名称相同
-                    options.JwtValidationClockSkew = TimeSpan.FromSeconds(0);  //时间偏移量
-                });
-            #endregion
+            services.AddJwtBearerAuthentication();  //添加jwt支持
 
             services.AddControllers(options =>
             {
@@ -88,11 +77,11 @@ namespace CoreApi
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
             #region 启用IHttpClientFactory
-            services.AddHttpClient("identityServer", config =>
-            {
-                config.BaseAddress = new Uri("http://localhost:10086");
-                config.Timeout = TimeSpan.FromSeconds(10);
-            });
+            //services.AddHttpClient("identityServer", config =>
+            //{
+            //    config.BaseAddress = new Uri("http://localhost:10086");
+            //    config.Timeout = TimeSpan.FromSeconds(10);
+            //});
             #endregion
 
             // 添加Swagger
