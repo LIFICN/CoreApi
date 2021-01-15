@@ -14,14 +14,12 @@ namespace PipeWebSocket
         private const int Processing = 1;   //有线程正在处理数据
         private const int UnProcessing = 0;   //没有线程处理数据
         private CancellationTokenSource cts = null;  //线程退出令牌
-        public int MaxCount { get; }  //队列最大容量
         public int ThreadCount { get; }  //消费线程数量
 
-        public ConcurrentAsyncQueue(int threadCount = 1, int maxCount = int.MaxValue)
+        public ConcurrentAsyncQueue(int threadCount = 1)
         {
-            queue = new ConcurrentQueue<T>();
             ThreadCount = threadCount;
-            MaxCount = maxCount;
+            queue = new ConcurrentQueue<T>();
         }
 
         public bool IsRunning
@@ -33,8 +31,6 @@ namespace PipeWebSocket
 
         public void Push(T obj)
         {
-            if (queue.Count >= MaxCount) return;
-
             queue.Enqueue(obj);
 
             if (!IsRunning) CreateTasks();
