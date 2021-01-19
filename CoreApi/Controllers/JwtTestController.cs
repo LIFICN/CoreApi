@@ -22,7 +22,7 @@ namespace CoreApi.Controllers
         public IActionResult GetToken()
         {
             var data = new Dictionary<string, string>();
-            data["id"] = "111";
+            data["user_id"] = "111";
             var token = JwtExtension.CreateToken(data, DateTime.Now.AddSeconds(50));
             return Ok(token);
         }

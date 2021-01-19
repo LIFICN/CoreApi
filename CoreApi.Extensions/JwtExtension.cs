@@ -51,12 +51,13 @@ namespace CoreApi.Extensions
                         {
                             ValidateIssuer = true, //是否验证Token发布者
                             ValidateAudience = true, //是否验证Token接受者
-                            ValidateLifetime = true,
-                            ValidateIssuerSigningKey = true,
+                            ValidateLifetime = true,  //是否验证过期时间，过期了就拒绝访问
+                            ValidateIssuerSigningKey = true,//是否验证签名
                             ValidIssuer = Issuer,
                             ValidAudience = Audience,
                             IssuerSigningKey = new SymmetricSecurityKey(SecurityKeyBytes),
-                            ClockSkew = TimeSpan.FromSeconds(0)  //token过期延迟时间
+                            ClockSkew = TimeSpan.FromSeconds(0),  //token过期延迟时间
+                            RequireExpirationTime = true,//否要求Token的Claims中必须包含Expires
                         };
                     });
         }

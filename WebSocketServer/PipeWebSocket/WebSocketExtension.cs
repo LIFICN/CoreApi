@@ -22,31 +22,16 @@ namespace PipeWebSocket
 
         public static void UseWebSocketServerMiddleware(this IApplicationBuilder app, string path, int bufferSize, Action<WebSocketConfigAction> action)
         {
-            if (action == null)
-                throw new NullReferenceException("action was null");
+            if (action == null) throw new NullReferenceException("action was null");
 
-            if (!string.IsNullOrWhiteSpace(path))
-                Config.Path = path;
+            if (!string.IsNullOrWhiteSpace(path)) Config.Path = path;
 
-            if (bufferSize > 0)
-                Config.ReceiveBufferSize = bufferSize;
+            if (bufferSize > 0) Config.ReceiveBufferSize = bufferSize;
 
             Config.ConfigAction = new WebSocketConfigAction();
             action(Config.ConfigAction);
 
-            app.UseMiddleware<ServerPoolMiddleware>();
-        }
-    }
-
-    public static class MemoryExtension
-    {
-        public static Memory<T> Append<T>(this Memory<T> self, in Memory<T> next)
-        {
-            T[] newArray = new T[self.Length + next.Length];
-            var newSpan = newArray.AsSpan();
-            self.Span.CopyTo(newSpan.Slice(0, self.Length));
-            next.Span.CopyTo(newSpan.Slice(self.Length, next.Length));
-            return newArray;
+            app.UseMiddleware<WebSocketMiddleware>();
         }
     }
 }

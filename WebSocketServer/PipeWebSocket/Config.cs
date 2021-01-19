@@ -14,7 +14,7 @@ namespace PipeWebSocket
     public class WebSocketConfigAction
     {
         public Action<HttpContext, WebSocket> OnOpen { get; set; }
-        public Action<HttpContext, WebSocketMsgResult, string, Memory<byte>> OnMessage { get; set; }
+        public Action<HttpContext, WebSocketMsgResult, string, ReadOnlyMemory<byte>> OnMessage { get; set; }
         public Action<HttpContext, WebSocket> OnClose { get; set; }
     }
 

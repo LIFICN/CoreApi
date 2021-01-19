@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace PipeWebSocket
 {
-    internal class ServerPoolMiddleware
+    internal class WebSocketMiddleware
     {
         public int ReceiveBufferSize { get => Config.ReceiveBufferSize; }
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
 
-        public ServerPoolMiddleware(RequestDelegate next, ILogger<ServerPoolMiddleware> logger)
+        public WebSocketMiddleware(RequestDelegate next, ILogger<WebSocketMiddleware> logger)
         {
             _next = next;
             _logger = logger ?? throw new Exception($"{nameof(logger)} was null");
@@ -64,36 +64,25 @@ namespace PipeWebSocket
 
         private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket, CancellationToken token)
         {
-            using PoolArrayBuffer<byte> bufferPool = new PoolArrayBuffer<byte>(ReceiveBufferSize);
-            Memory<byte> memory = Memory<byte>.Empty;
+            using ResizePoolBuffer<byte> bufferPool = new ResizePoolBuffer<byte>(ReceiveBufferSize);
 
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(bufferPool.Buffer, token).ConfigureAwait(false);
-                var bytesReceive = result.Count;
-                var receiveMemory = bufferPool.Buffer.AsMemory(0, bytesReceive);
+                var result = await webSocket.ReceiveAsync(bufferPool.GetMemory(ReceiveBufferSize), token).ConfigureAwait(false);
+                bufferPool.Advance(result.Count);
 
-                if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    if (memory.IsEmpty && result.EndOfMessage)  //如果第一个包是完整包，避免拷贝
-                        memory = receiveMemory;
-                    else if (memory.IsEmpty)                    //如果第一个包是不是完整包，必须拷贝
-                        memory = receiveMemory.ToArray();
-                    else
-                        memory = memory.Append(receiveMemory);  //拼接分包
-                }
-                else if (result.MessageType == WebSocketMessageType.Binary)
+                if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    Config.ConfigAction.OnMessage?.Invoke(context, msgResult, null, receiveMemory);
+                    Config.ConfigAction.OnMessage?.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
                 }
 
                 if (result.EndOfMessage)
                 {
-                    if (result.MessageType == WebSocketMessageType.Text && !memory.IsEmpty)
+                    if (result.MessageType == WebSocketMessageType.Text)
                     {
                         var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        Config.ConfigAction.OnMessage?.Invoke(context, msgResult, Encoding.UTF8.GetString(memory.Span), null);
+                        Config.ConfigAction.OnMessage?.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
                     }
 
                     break;
