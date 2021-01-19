@@ -27,14 +27,14 @@ namespace PipeWebSocket
 
         public void Write(T value)
         {
-            this.GetSpan(1)[0] = value;
+            GetSpan(1)[0] = value;
             _count += 1;
         }
 
         public void Write(ReadOnlySpan<T> value)
         {
             if (value.IsEmpty) return;
-            value.CopyTo(this.GetSpan(value.Length));
+            value.CopyTo(GetSpan(value.Length));
             _count += value.Length;
         }
 
