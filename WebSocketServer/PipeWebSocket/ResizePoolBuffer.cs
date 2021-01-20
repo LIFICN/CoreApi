@@ -44,7 +44,8 @@ namespace PipeWebSocket
 
             if (minLength + _count > Capacity)
             {
-                var newBuff = ArrayPool<T>.Shared.Rent(minLength + _count);
+                var newSize = checked(_count + minLength);  //检测是否超出int最大值,超出即抛出异常
+                var newBuff = ArrayPool<T>.Shared.Rent(newSize);
                 Array.Copy(_buff, newBuff, _count);
                 ArrayPool<T>.Shared.Return(_buff);
                 _buff = newBuff;
