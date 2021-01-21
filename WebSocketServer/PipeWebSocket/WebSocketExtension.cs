@@ -20,17 +20,21 @@ namespace PipeWebSocket
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, webSocket.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
         }
 
-        public static void UseWebSocketServerMiddleware(this IApplicationBuilder app, string path, int bufferSize, Action<WebSocketConfigAction> action)
+        public static void UseWebSocketServerMiddleware(this IApplicationBuilder app, string path, Action<PipeWebSocketOptions> action)
         {
             if (action == null) throw new NullReferenceException("action was null");
 
-            if (!string.IsNullOrWhiteSpace(path)) Config.Path = path;
+            var options = new PipeWebSocketOptions();
+            action(options);
 
-            if (bufferSize > 0) Config.ReceiveBufferSize = bufferSize;
+            if (!string.IsNullOrWhiteSpace(path)) StaticOptions.Path = path;
+            if (options.MaxPackageLength <= 0) throw new Exception("MaxPackageLength <= 0");
+            if (options.ReceiveBufferSize <= 0) throw new Exception("ReceiveBufferSize <= 0");
+            if (options.OnOpen == null) throw new NullReferenceException("OnOpen was null");
+            if (options.OnMessage == null) throw new NullReferenceException("OnMessage was null");
+            if (options.OnClose == null) throw new NullReferenceException("OnClose was null");
 
-            Config.ConfigAction = new WebSocketConfigAction();
-            action(Config.ConfigAction);
-
+            StaticOptions.Options = options;
             app.UseMiddleware<WebSocketMiddleware>();
         }
     }

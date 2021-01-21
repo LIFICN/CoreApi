@@ -54,8 +54,11 @@ namespace WebSocketServer
                 ReceiveBufferSize = bufferSize
             });
 
-            app.UseWebSocketServerMiddleware("/", bufferSize, options =>
+            app.UseWebSocketServerMiddleware("/", options =>
             {
+                options.ReceiveBufferSize = bufferSize;
+                options.MaxPackageLength = 1 * 1024 * 1024;
+
                 options.OnOpen = (context, websocket) =>
                 {
                     string id = context.Connection.Id;

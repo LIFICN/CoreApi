@@ -10,7 +10,9 @@ namespace PipeWebSocket
 {
     internal class WebSocketMiddleware
     {
-        public int ReceiveBufferSize { get => Config.ReceiveBufferSize; }
+        public int ReceiveBufferSize { get => StaticOptions.Options.ReceiveBufferSize; }
+        public int MaxPackageLength { get => StaticOptions.Options.MaxPackageLength; }
+
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
 
@@ -22,14 +24,14 @@ namespace PipeWebSocket
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var path = Config.Path;
+            var path = StaticOptions.Path;
 
             if (context.Request.Path.StartsWithSegments(path))
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {
                     using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-                    Config.ConfigAction.OnOpen?.Invoke(context, webSocket);
+                    StaticOptions.Options.OnOpen.Invoke(context, webSocket);
                     await ProcessAsync(context, webSocket).ConfigureAwait(false);
                 }
                 else
@@ -58,7 +60,7 @@ namespace PipeWebSocket
             finally
             {
                 tokenSource.Cancel();
-                Config.ConfigAction.OnClose?.Invoke(context, webSocket);
+                StaticOptions.Options.OnClose.Invoke(context, webSocket);
             }
         }
 
@@ -71,10 +73,12 @@ namespace PipeWebSocket
                 var result = await webSocket.ReceiveAsync(bufferPool.GetMemory(ReceiveBufferSize), token).ConfigureAwait(false);
                 bufferPool.Advance(result.Count);
 
+                if (bufferPool.Count > MaxPackageLength) throw new Exception("the packet length exceeds the maximum packet length");
+
                 if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    Config.ConfigAction.OnMessage?.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
+                    StaticOptions.Options.OnMessage.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
                 }
 
                 if (result.EndOfMessage)
@@ -82,7 +86,7 @@ namespace PipeWebSocket
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
                         var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        Config.ConfigAction.OnMessage?.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
+                        StaticOptions.Options.OnMessage.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
                     }
 
                     break;

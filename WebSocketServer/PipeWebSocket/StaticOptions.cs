@@ -4,15 +4,16 @@ using System.Net.WebSockets;
 
 namespace PipeWebSocket
 {
-    internal class Config
+    internal class StaticOptions
     {
         public static string Path { get; set; } = "/";
-        public static int ReceiveBufferSize { get; set; } = 2 * 1024;
-        public static WebSocketConfigAction ConfigAction { get; set; }
+        public static PipeWebSocketOptions Options { get; set; }
     }
 
-    public class WebSocketConfigAction
+    public class PipeWebSocketOptions
     {
+        public int ReceiveBufferSize { get; set; } = 4 * 1024;
+        public int MaxPackageLength { get; set; } = 1 * 1024 * 1024;
         public Action<HttpContext, WebSocket> OnOpen { get; set; }
         public Action<HttpContext, WebSocketMsgResult, string, ReadOnlyMemory<byte>> OnMessage { get; set; }
         public Action<HttpContext, WebSocket> OnClose { get; set; }
