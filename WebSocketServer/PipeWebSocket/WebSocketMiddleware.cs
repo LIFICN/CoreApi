@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net.WebSockets;
 using System.Text;
@@ -14,12 +13,10 @@ namespace PipeWebSocket
         public int MaxPackageLength { get => StaticOptions.Options.MaxPackageLength; }
 
         private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
 
-        public WebSocketMiddleware(RequestDelegate next, ILogger<WebSocketMiddleware> logger)
+        public WebSocketMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger ?? throw new Exception($"{nameof(logger)} was null");
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -31,7 +28,7 @@ namespace PipeWebSocket
                 if (context.WebSockets.IsWebSocketRequest)
                 {
                     using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-                    StaticOptions.Options.OnOpen.Invoke(context, webSocket);
+                    StaticOptions.Options.OnOpen?.Invoke(context, webSocket);
                     await ProcessAsync(context, webSocket).ConfigureAwait(false);
                 }
                 else
@@ -54,13 +51,12 @@ namespace PipeWebSocket
             }
             catch (Exception ex)
             {
-                if (_logger != null)
-                    _logger.LogError(ex.Message);
+                StaticOptions.Options.OnException?.Invoke(context, webSocket, ex);
             }
             finally
             {
                 tokenSource.Cancel();
-                StaticOptions.Options.OnClose.Invoke(context, webSocket);
+                StaticOptions.Options.OnClose?.Invoke(context, webSocket);
             }
         }
 
@@ -78,7 +74,7 @@ namespace PipeWebSocket
                 if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    StaticOptions.Options.OnMessage.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
+                    StaticOptions.Options.OnMessage?.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
                 }
 
                 if (result.EndOfMessage)
@@ -86,7 +82,7 @@ namespace PipeWebSocket
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
                         var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        StaticOptions.Options.OnMessage.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
+                        StaticOptions.Options.OnMessage?.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
                     }
 
                     break;

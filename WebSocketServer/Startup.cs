@@ -91,6 +91,11 @@ namespace WebSocketServer
                     WebSocketCache.TryRemove(id, out _);
                     Console.WriteLine($"{id} closed");
                 };
+                options.OnException = (context, webSocket, ex) =>
+                {
+                    string id = context.Connection.Id;
+                    Console.WriteLine($"{id} {ex.Message}");
+                };
             });
         }
     }

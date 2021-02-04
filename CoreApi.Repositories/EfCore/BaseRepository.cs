@@ -23,7 +23,7 @@ namespace CoreApi.Repositories
             BaseDbSet = dbContext.Set<T>();
         }
 
-        public async ValueTask<bool> SaveChangesAsync() => await coreDbContext.SaveChangesAsync().ConfigureAwait(false) > 0 ? true : false;
+        public async ValueTask<bool> SaveChangesAsync() => await coreDbContext.SaveChangesAsync().ConfigureAwait(false) > 0;
 
         public IDbConnection GetDbConnection() => coreDbContext.Database.GetDbConnection();
 

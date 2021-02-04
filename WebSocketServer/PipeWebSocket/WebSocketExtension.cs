@@ -30,9 +30,6 @@ namespace PipeWebSocket
             if (!string.IsNullOrWhiteSpace(path)) StaticOptions.Path = path;
             if (options.MaxPackageLength <= 0) throw new Exception("MaxPackageLength <= 0");
             if (options.ReceiveBufferSize <= 0) throw new Exception("ReceiveBufferSize <= 0");
-            if (options.OnOpen == null) throw new NullReferenceException("OnOpen was null");
-            if (options.OnMessage == null) throw new NullReferenceException("OnMessage was null");
-            if (options.OnClose == null) throw new NullReferenceException("OnClose was null");
 
             StaticOptions.Options = options;
             app.UseMiddleware<WebSocketMiddleware>();
