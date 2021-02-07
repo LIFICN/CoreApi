@@ -77,11 +77,7 @@ namespace CoreApi
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
             #region ÆôÓÃIHttpClientFactory
-            //services.AddHttpClient("identityServer", config =>
-            //{
-            //    config.BaseAddress = new Uri("http://localhost:10086");
-            //    config.Timeout = TimeSpan.FromSeconds(10);
-            //});
+            services.AddHttpClient();
             #endregion
 
             // Ìí¼ÓSwagger

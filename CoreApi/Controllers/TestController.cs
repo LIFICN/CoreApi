@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace CoreApi.Controllers
@@ -15,11 +16,13 @@ namespace CoreApi.Controllers
     public class TestController : BaseController
     {
         private readonly ITestService testService;
+        private readonly HttpClient httpClient;
         public long TimeStampNow { get => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); }
 
-        public TestController(ITestService _testService)
+        public TestController(ITestService _testService, IHttpClientFactory httpClientFactory)
         {
             testService = _testService;
+            httpClient = httpClientFactory.CreateClient();
         }
 
         /// <summary>
@@ -86,6 +89,23 @@ namespace CoreApi.Controllers
         public IActionResult GetTimeBy(string timestamp)
         {
             var res = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timestamp)).LocalDateTime;
+            return Ok(res);
+        }
+
+        /// <summary>
+        /// 根据经纬度查询具体位置信息
+        /// </summary>
+        /// <param name="lat">纬度</param>
+        /// <param name="lng">经度</param>
+        /// <returns></returns>
+        [HttpGet("reverseGeocoding")]
+        public async ValueTask<IActionResult> ReverseGeocoding(string lat, string lng)
+        {
+            if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lng))
+                return BadRequest("经纬度不能为空");
+
+            string api = $"https://api.map.baidu.com/reverse_geocoding/v3/?ak=HiQwVOsgoVBbq0DNw6vT6WtfrPCGEc6R&output=json&coordtype=wgs84ll&location={lat},{lng}";
+            var res = await httpClient.GetStringAsync(api).ConfigureAwait(false);
             return Ok(res);
         }
     }
