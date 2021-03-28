@@ -7,6 +7,6 @@ namespace CoreApi.Repositories.Interfaces
     public interface ITestRepository : IRepository<TestEntity1>
     {
         string Say(string message);
-        ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize);
+        Task<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize);
     }
 }

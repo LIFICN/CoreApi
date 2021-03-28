@@ -23,7 +23,7 @@ namespace CoreApi.Repositories
             BaseDbSet = dbContext.Set<T>();
         }
 
-        public async ValueTask<bool> SaveChangesAsync() => await coreDbContext.SaveChangesAsync().ConfigureAwait(false) > 0;
+        public async Task<bool> SaveChangesAsync() => await coreDbContext.SaveChangesAsync().ConfigureAwait(false) > 0;
 
         public IDbConnection GetDbConnection() => coreDbContext.Database.GetDbConnection();
 
@@ -38,13 +38,13 @@ namespace CoreApi.Repositories
         /// 该方法走的是Dapper,走事务查询
         /// </summary>
         /// <returns></returns>
-        public async ValueTask<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action)
+        public async Task<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action)
         {
             var dbConnection = GetDbConnection(); //请勿释放
             return await dbConnection.PageAsync<TResult>(action).ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
+        public virtual async Task<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
         {
             var query = BaseDbSet.Where(expression).Skip((pageIndex - 1) * pageSize).Take(pageSize);
             if (isNoTracking) query = query.AsNoTracking();
@@ -54,7 +54,7 @@ namespace CoreApi.Repositories
             return (res, total);
         }
 
-        public virtual async ValueTask<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true)
+        public virtual async Task<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true)
         {
             var query = BaseDbSet.Where(expression);
             if (isNoTracking) query = query.AsNoTracking();
@@ -62,38 +62,38 @@ namespace CoreApi.Repositories
             return await query.FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<T> AddAsync(T entity)
+        public virtual async Task<T> AddAsync(T entity)
         {
             BaseDbSet.Add(entity);
             var res = await SaveChangesAsync().ConfigureAwait(false);
             return res ? entity : null;
         }
 
-        public virtual async ValueTask<bool> UpdateAsync(T entity)
+        public virtual async Task<bool> UpdateAsync(T entity)
         {
             BaseDbSet.Update(entity);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> DeleteAsync(T entity)
+        public virtual async Task<bool> DeleteAsync(T entity)
         {
             BaseDbSet.Remove(entity);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> AddRangeAsync(IEnumerable<T> entities)
+        public virtual async Task<bool> AddRangeAsync(IEnumerable<T> entities)
         {
             BaseDbSet.AddRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> UpdateRangeAsync(IEnumerable<T> entities)
+        public virtual async Task<bool> UpdateRangeAsync(IEnumerable<T> entities)
         {
             BaseDbSet.UpdateRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async ValueTask<bool> DeleteRangeAsync(IEnumerable<T> entities)
+        public virtual async Task<bool> DeleteRangeAsync(IEnumerable<T> entities)
         {
             BaseDbSet.RemoveRange(entities);
             return await SaveChangesAsync().ConfigureAwait(false);

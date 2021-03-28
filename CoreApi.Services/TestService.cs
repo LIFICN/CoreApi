@@ -17,12 +17,12 @@ namespace CoreApi.Services
 
         public string SayService(string message) => testRepository.Say(message);
 
-        public async ValueTask<ValueTuple<dynamic, int>> GetListAsync(int pageIndex, int pageSize)
+        public async Task<ValueTuple<dynamic, int>> GetListAsync(int pageIndex, int pageSize)
         {
             return await testRepository.GetListAsync(null, pageIndex, pageSize, true);
         }
 
-        public async ValueTask<(IEnumerable<T>, int)> GetPageListAsync<T>(int pageIndex, int pageSize)
+        public async Task<(IEnumerable<T>, int)> GetPageListAsync<T>(int pageIndex, int pageSize)
         {
             return await testRepository.DapperPageTestAsync<T>(pageIndex, pageSize);
         }

@@ -11,17 +11,17 @@ namespace CoreApi.Repositories
 {
     public interface IRepository<T> where T : class
     {
-        public ValueTask<bool> SaveChangesAsync();
+        public Task<bool> SaveChangesAsync();
         public IDbConnection GetDbConnection();
-        public ValueTask<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action);
-        public ValueTask<(List<T>,int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true);
-        public ValueTask<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true);
-        public ValueTask<T> AddAsync(T entity);
-        public ValueTask<bool> UpdateAsync(T entity);
-        public ValueTask<bool> DeleteAsync(T entity);
-        public ValueTask<bool> AddRangeAsync(IEnumerable<T> entities);
-        public ValueTask<bool> UpdateRangeAsync(IEnumerable<T> entities);
-        public ValueTask<bool> DeleteRangeAsync(IEnumerable<T> entities);
+        public Task<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action);
+        public Task<(List<T>,int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true);
+        public Task<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true);
+        public Task<T> AddAsync(T entity);
+        public Task<bool> UpdateAsync(T entity);
+        public Task<bool> DeleteAsync(T entity);
+        public Task<bool> AddRangeAsync(IEnumerable<T> entities);
+        public Task<bool> UpdateRangeAsync(IEnumerable<T> entities);
+        public Task<bool> DeleteRangeAsync(IEnumerable<T> entities);
         public IDbContextTransaction BeginTransaction();
         public DbSet<TResult> GetDbSet<TResult>() where TResult : class;
     }

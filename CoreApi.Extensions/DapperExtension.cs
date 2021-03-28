@@ -31,7 +31,7 @@ namespace CoreApi.Extensions
 
         public static SqlType? SqlConnectionType { get; set; }
 
-        public static async ValueTask<(List<T>, int)> PageAsync<T>(this IDbConnection conn, Action<PageConfig> action)
+        public static async Task<(List<T>, int)> PageAsync<T>(this IDbConnection conn, Action<PageConfig> action)
         {
             PageConfig p = new PageConfig();
             action?.Invoke(p);

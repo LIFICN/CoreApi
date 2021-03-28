@@ -20,7 +20,6 @@ namespace CoreApi.Extensions
             //添加相关类型序列化转换器
             options.Converters.Add(new DateTimeJsonConverter());
             options.Converters.Add(new DateTimeNullableJsonConverter());
-            options.Converters.Add(new DataTableJsonConverter());
             SerializerOptions = options;
         }
 

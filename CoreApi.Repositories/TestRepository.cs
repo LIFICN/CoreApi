@@ -18,7 +18,7 @@ namespace CoreApi.Repositories
 
         public string Say(string message) => message;
 
-        public override async ValueTask<(List<TestEntity1>, int)> GetListAsync(Expression<Func<TestEntity1, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
+        public override async Task<(List<TestEntity1>, int)> GetListAsync(Expression<Func<TestEntity1, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
         {
             using var trans = base.BeginTransaction();
             var query = (from t1 in base.BaseDbSet
@@ -40,7 +40,7 @@ namespace CoreApi.Repositories
             return (data, total);
         }
 
-        public async ValueTask<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)
+        public async Task<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)
         {
             return await base.GetListAsync<T>(p =>
             {

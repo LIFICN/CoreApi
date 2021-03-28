@@ -27,8 +27,9 @@ namespace CoreApi.Filters
             }
             #endregion
 
-            #region Action执行后
             await next();
+
+            #region Action执行后
             #endregion
         }
     }

@@ -117,9 +117,7 @@ namespace CoreApi.Extensions
 
             //去掉自带api-version,治疗强迫症
             var versionParameter = operation.Parameters.FirstOrDefault(d => d.Name.ToLower().Equals("api-version") && d.In == ParameterLocation.Query);
-
-            if (versionParameter != null)
-                operation.Parameters.Remove(versionParameter);
+            if (versionParameter != null) operation.Parameters.Remove(versionParameter);
         }
     }
 }

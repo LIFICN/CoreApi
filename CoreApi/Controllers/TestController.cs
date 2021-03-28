@@ -17,7 +17,6 @@ namespace CoreApi.Controllers
     {
         private readonly ITestService testService;
         private readonly HttpClient httpClient;
-        public long TimeStampNow { get => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); }
 
         public TestController(ITestService _testService, IHttpClientFactory httpClientFactory)
         {
@@ -40,7 +39,7 @@ namespace CoreApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("ef-page")]
-        public async ValueTask<IActionResult> Get(int pageIndex, int pageSize)
+        public async Task<IActionResult> Get(int pageIndex, int pageSize)
         {
             (dynamic data, int total) = await testService.GetListAsync(pageIndex, pageSize);
             return Ok(new { data, total });
@@ -53,7 +52,7 @@ namespace CoreApi.Controllers
         /// <param name="pageSize">条数</param>
         /// <returns></returns>
         [HttpGet("[action]")]
-        public async ValueTask<dynamic> DapperPage(int pageIndex, int pageSize)
+        public async Task<dynamic> DapperPage(int pageIndex, int pageSize)
         {
             var (data, total) = await testService.GetPageListAsync<dynamic>(pageIndex, pageSize);
             return new { data, total };
@@ -77,7 +76,7 @@ namespace CoreApi.Controllers
         [HttpGet("getTimeStampNow")]
         public IActionResult GetTimeStampNow()
         {
-            return Ok(TimeStampNow);
+            return Ok(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
 
         /// <summary>
@@ -99,7 +98,7 @@ namespace CoreApi.Controllers
         /// <param name="lng">经度</param>
         /// <returns></returns>
         [HttpGet("reverseGeocoding")]
-        public async ValueTask<IActionResult> ReverseGeocoding(string lat, string lng)
+        public async Task<IActionResult> ReverseGeocoding(string lat, string lng)
         {
             if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lng))
                 return BadRequest("经纬度不能为空");

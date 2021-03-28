@@ -68,7 +68,6 @@ namespace CoreApi
                 jsonOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase; // 键值对驼峰命名
                 jsonOptions.Converters.Add(new DateTimeJsonConverter()); //转换时间格式，默认：yyyy-MM-dd HH:mm:ss
                 jsonOptions.Converters.Add(new DateTimeNullableJsonConverter());
-                jsonOptions.Converters.Add(new DataTableJsonConverter());
             });
 
             // 批量依赖注入
