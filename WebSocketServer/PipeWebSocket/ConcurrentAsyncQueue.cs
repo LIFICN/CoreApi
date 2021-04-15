@@ -60,7 +60,7 @@ namespace PipeWebSocket
             Task[] tasks = new Task[ThreadCount];
             for (int i = 0; i < ThreadCount; i++)
             {
-                var task = Task.Factory.StartNew(() => Listening(), cts.Token);
+                var task = Task.Factory.StartNew(() => Listening(), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 tasks[i] = task;
             }
 

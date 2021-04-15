@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -58,6 +60,17 @@ namespace CoreApi.Extensions
                             IssuerSigningKey = new SymmetricSecurityKey(SecurityKeyBytes),
                             ClockSkew = TimeSpan.FromSeconds(0),  //token过期延迟时间
                             RequireExpirationTime = true,//否要求Token的Claims中必须包含Expires
+                        };
+
+                        options.Events = new JwtBearerEvents()
+                        {
+                            OnChallenge = async (context) =>
+                            {
+                                context.HandleResponse(); //此处代码为终止.Net Core默认的返回类型和数据结果，这个很重要哦，必须
+                                context.Response.StatusCode = 401;
+                                context.Response.ContentType = "application/json";
+                                await context.Response.WriteAsync(new { code = 401, msg = "token已过期" }.ToJson());
+                            }
                         };
                     });
         }
