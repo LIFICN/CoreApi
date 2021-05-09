@@ -45,8 +45,6 @@ namespace WebSocketServer
                 endpoints.MapControllers();
             });
 
-            int bufferSize = 4 * 1024;  //缓冲区大小，可适当增大缓冲区，建议不超过8k
-
             app.UseWebSockets(new WebSocketOptions
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(120)
@@ -54,7 +52,7 @@ namespace WebSocketServer
 
             app.UseWebSocketServerMiddleware(options =>
             {
-                options.ReceiveBufferSize = bufferSize;
+                options.ReceiveBufferSize = 4 * 1024;  //缓冲区大小，可适当增大缓冲区，建议不超过8k
                 options.MaxPackageLength = 1 * 1024 * 1024;
                 options.Path = "/";
 

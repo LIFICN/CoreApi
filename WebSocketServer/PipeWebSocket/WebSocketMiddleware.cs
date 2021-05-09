@@ -76,9 +76,9 @@ namespace PipeWebSocket
                     WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
                 }
 
-                if (!result.EndOfMessage)
+                if (result.EndOfMessage)
                 {
-                    if (result.MessageType != WebSocketMessageType.Text)
+                    if (result.MessageType == WebSocketMessageType.Text)
                     {
                         var msgRes = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
                         WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
