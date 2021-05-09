@@ -9,9 +9,7 @@ namespace PipeWebSocket
 {
     internal class WebSocketMiddleware
     {
-        public int ReceiveBufferSize { get => StaticOptions.Options.ReceiveBufferSize; }
-        public int MaxPackageLength { get => StaticOptions.Options.MaxPackageLength; }
-
+        public PipeWebSocketOptions WebSocketOptionsEx { get => WebSocketExtension.GlobalOptions; }
         private readonly RequestDelegate _next;
 
         public WebSocketMiddleware(RequestDelegate next)
@@ -21,14 +19,14 @@ namespace PipeWebSocket
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var path = StaticOptions.Path;
+            var path = WebSocketOptionsEx.Path;
 
             if (context.Request.Path.StartsWithSegments(path))
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {
                     using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-                    StaticOptions.Options.OnOpen?.Invoke(context, webSocket);
+                    WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
                     await ProcessAsync(context, webSocket).ConfigureAwait(false);
                 }
                 else
@@ -51,38 +49,39 @@ namespace PipeWebSocket
             }
             catch (Exception ex)
             {
-                StaticOptions.Options.OnException?.Invoke(context, webSocket, ex);
+                WebSocketOptionsEx.OnException?.Invoke(context, webSocket, ex);
             }
             finally
             {
                 tokenSource.Cancel();
-                StaticOptions.Options.OnClose?.Invoke(context, webSocket);
+                WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
             }
         }
 
         private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket, CancellationToken token)
         {
-            using ResizePoolBuffer<byte> bufferPool = new ResizePoolBuffer<byte>(ReceiveBufferSize);
+            using ResizeMemory<byte> bufferPool = new ResizeMemory<byte>(WebSocketOptionsEx.ReceiveBufferSize);
 
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(bufferPool.GetMemory(ReceiveBufferSize), token).ConfigureAwait(false);
+                var result = await webSocket.ReceiveAsync(bufferPool.GetMemory(WebSocketOptionsEx.ReceiveBufferSize), token).ConfigureAwait(false);
                 bufferPool.Advance(result.Count);
 
-                if (bufferPool.Count > MaxPackageLength) throw new Exception("the packet length exceeds the maximum packet length");
+                if (bufferPool.Count > WebSocketOptionsEx.MaxPackageLength)
+                    throw new Exception("the packet length exceeds the maximum packet length");
 
                 if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    StaticOptions.Options.OnMessage?.Invoke(context, msgResult, null, bufferPool.WrittenMemory);
+                    WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
                 }
 
-                if (result.EndOfMessage)
+                if (!result.EndOfMessage)
                 {
-                    if (result.MessageType == WebSocketMessageType.Text)
+                    if (result.MessageType != WebSocketMessageType.Text)
                     {
-                        var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        StaticOptions.Options.OnMessage?.Invoke(context, msgResult, Encoding.UTF8.GetString(bufferPool.WrittenSpan), null);
+                        var msgRes = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
+                        WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
                     }
 
                     break;

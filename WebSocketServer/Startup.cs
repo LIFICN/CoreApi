@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging.Console;
 using PipeWebSocket;
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Net.WebSockets;
 
 namespace WebSocketServer
@@ -50,14 +49,14 @@ namespace WebSocketServer
 
             app.UseWebSockets(new WebSocketOptions
             {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
-                ReceiveBufferSize = bufferSize
+                KeepAliveInterval = TimeSpan.FromSeconds(120)
             });
 
-            app.UseWebSocketServerMiddleware("/", options =>
+            app.UseWebSocketServerMiddleware(options =>
             {
                 options.ReceiveBufferSize = bufferSize;
                 options.MaxPackageLength = 1 * 1024 * 1024;
+                options.Path = "/";
 
                 options.OnOpen = (context, websocket) =>
                 {
@@ -76,13 +75,8 @@ namespace WebSocketServer
                     }
                     else if (msgType == WebSocketMessageType.Binary)
                     {
-                        var fullName = $"{AppContext.BaseDirectory}{context.Request.Query["fileName"]}";
-                        using FileStream fileStream = new FileStream(fullName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                        await fileStream.WriteAsync(file).ConfigureAwait(false);
-                        await fileStream.FlushAsync().ConfigureAwait(false);
-
-                        if (webSocketMsgResult.EndOfMessage)
-                            Console.WriteLine("file received completed");
+                        Console.WriteLine($"file received {file.Length / 1024}KB");
+                        if (webSocketMsgResult.EndOfMessage) Console.WriteLine("file received completed");
                     }
                 };
                 options.OnClose = (context, webSocket) =>

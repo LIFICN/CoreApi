@@ -4,14 +4,9 @@ using System.Net.WebSockets;
 
 namespace PipeWebSocket
 {
-    internal class StaticOptions
-    {
-        public static string Path { get; set; } = "/";
-        public static PipeWebSocketOptions Options { get; set; }
-    }
-
     public class PipeWebSocketOptions
     {
+        public string Path { get; set; } = "/";
         public int ReceiveBufferSize { get; set; } = 4 * 1024;
         public int MaxPackageLength { get; set; } = 1 * 1024 * 1024;
         public Action<HttpContext, WebSocket> OnOpen { get; set; }

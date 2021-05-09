@@ -32,7 +32,6 @@ namespace PipeWebSocket
         public void Push(T obj)
         {
             queue.Enqueue(obj);
-
             if (!IsRunning) CreateTasks();
         }
 
@@ -56,18 +55,27 @@ namespace PipeWebSocket
 
         private async void CreateTasks()
         {
-            cts = new CancellationTokenSource();
-            Task[] tasks = new Task[ThreadCount];
-            for (int i = 0; i < ThreadCount; i++)
+            try
             {
-                var task = Task.Factory.StartNew(() => Listening(), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-                tasks[i] = task;
-            }
+                cts = new CancellationTokenSource();
+                Task[] tasks = new Task[ThreadCount];
+                for (int i = 0; i < ThreadCount; i++)
+                {
+                    var task = Task.Factory.StartNew(() => Listening(), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    tasks[i] = task;
+                }
 
-            await Task.WhenAll(tasks);  //等待消费线程执行完成
-            cts.Cancel();  //结束线程池任务
-            tasks = null; //标记清理线程池
-            ResetState(); //重置状态
+                await Task.WhenAll(tasks);  //等待消费线程执行完成
+            }
+            catch (Exception ex)
+            {
+                OnException?.Invoke(default, ex);
+            }
+            finally
+            {
+                cts.Cancel();  //结束线程池任务
+                ResetState(); //重置状态
+            }
         }
 
         public void ResetAll()
