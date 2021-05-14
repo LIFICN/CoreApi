@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace PipeWebSocket
 {
@@ -10,7 +11,7 @@ namespace PipeWebSocket
         public int ReceiveBufferSize { get; set; } = 4 * 1024;
         public int MaxPackageLength { get; set; } = 1 * 1024 * 1024;
         public Action<HttpContext, WebSocket> OnOpen { get; set; }
-        public Action<HttpContext, WebSocketMsgResult, string, ReadOnlyMemory<byte>> OnMessage { get; set; }
+        public Func<HttpContext, WebSocketMsgResult, string, ReadOnlyMemory<byte>, Task> OnMessage { get; set; }
         public Action<HttpContext, WebSocket> OnClose { get; set; }
         public Action<HttpContext, WebSocket, Exception> OnException { get; set; }
     }

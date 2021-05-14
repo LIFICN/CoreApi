@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PipeWebSocket
@@ -8,12 +7,9 @@ namespace PipeWebSocket
     public class ConcurrentAsyncQueue<T>
     {
         private readonly ConcurrentQueue<T> queue = null;
-        public Action<T> OnProcess = null;
+        public Func<T, Task> OnProcess = null;
         public Action<T, Exception> OnException = null;
-        private int isProcessing;   //队列是否正在处理数据
-        private const int Processing = 1;   //有线程正在处理数据
-        private const int UnProcessing = 0;   //没有线程处理数据
-        private CancellationTokenSource cts = null;  //线程退出令牌
+        private volatile bool isProcessing = false;   //队列是否正在处理数据
         public int ThreadCount { get; }  //消费线程数量
 
         public ConcurrentAsyncQueue(int threadCount = 1)
@@ -22,28 +18,23 @@ namespace PipeWebSocket
             queue = new ConcurrentQueue<T>();
         }
 
-        public bool IsRunning
-        {
-            get => Interlocked.CompareExchange(ref isProcessing, Processing, UnProcessing) == Processing;
-        }
-
         public int Count { get => queue.Count; }
 
         public void Push(T obj)
         {
             queue.Enqueue(obj);
-            if (!IsRunning) CreateTasks();
+            if (!isProcessing) CreateTasks();
         }
 
-        private void Listening()
+        private async Task ListeninAsync()
         {
-            while (queue.Count > 0)
+            while (queue.Count > 0 && isProcessing)
             {
                 if (queue.TryDequeue(out T item))
                 {
                     try
                     {
-                        OnProcess?.Invoke(item);
+                        await OnProcess?.Invoke(item);
                     }
                     catch (Exception ex)
                     {
@@ -57,15 +48,15 @@ namespace PipeWebSocket
         {
             try
             {
-                cts = new CancellationTokenSource();
+                isProcessing = true;
                 Task[] tasks = new Task[ThreadCount];
                 for (int i = 0; i < ThreadCount; i++)
                 {
-                    var task = Task.Factory.StartNew(() => Listening(), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    var task = Task.Factory.StartNew(async () => await ListeninAsync(), TaskCreationOptions.LongRunning);
                     tasks[i] = task;
                 }
 
-                await Task.WhenAll(tasks);  //等待消费线程执行完成
+                await Task.WhenAll(tasks).ConfigureAwait(false);  //等待消费线程执行完成
             }
             catch (Exception ex)
             {
@@ -73,20 +64,18 @@ namespace PipeWebSocket
             }
             finally
             {
-                cts.Cancel();  //结束线程池任务
                 ResetState(); //重置状态
             }
         }
 
         public void ResetAll()
         {
-            if (queue == null || cts == null) return;
+            if (queue == null) return;
 
-            cts.Cancel();
             queue.Clear();
             ResetState();
         }
 
-        private void ResetState() => _ = Interlocked.Exchange(ref isProcessing, UnProcessing);
+        private void ResetState() => isProcessing = false;
     }
 }

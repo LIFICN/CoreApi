@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -16,16 +17,7 @@ namespace CoreApi.Extensions
 
             foreach (var implementationType in classArray)
             {
-                var serviceType = interfaceArray.FirstOrDefault(d =>
-                {
-                    if (checkClassName)  //避免多接口继承引起的脏映射
-                    {
-                        var impName = implementationType.Name;
-                        return d.IsAssignableFrom(implementationType) && d.Name.StartsWith($"I{impName}");
-                    }
-
-                    return d.IsAssignableFrom(implementationType);
-                });
+                var serviceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
 
                 if (serviceType != null)
                     services.AddScoped(serviceType, implementationType);
@@ -43,20 +35,20 @@ namespace CoreApi.Extensions
 
             foreach (var implementationType in classArray)
             {
-                var serviceType = interfaceArray.FirstOrDefault(d =>
-                {
-                    if (checkClassName)  //避免多接口继承引起的脏映射
-                    {
-                        var impName = implementationType.Name;
-                        return d.IsAssignableFrom(implementationType) && d.Name.StartsWith($"I{impName}");
-                    }
-
-                    return d.IsAssignableFrom(implementationType);
-                });
+                var serviceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
 
                 if (serviceType != null)
                     services.AddScoped(serviceType, implementationType);
             }
+        }
+
+        public static bool CheckAssignable(Type interfaceType, Type classType, bool checkClassName = false)
+        {
+            if (!checkClassName) return interfaceType.IsAssignableFrom(classType);
+
+            //避免多接口继承引起的脏映射
+            var className = classType.Name;
+            return interfaceType.IsAssignableFrom(classType) && interfaceType.Name.StartsWith($"I{className}");
         }
     }
 }

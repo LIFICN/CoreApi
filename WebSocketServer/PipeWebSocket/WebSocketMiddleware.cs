@@ -33,18 +33,16 @@ namespace PipeWebSocket
                     context.Response.StatusCode = 400;
             }
             else
-                await _next?.Invoke(context);
+                await _next(context);
         }
 
         private async ValueTask ProcessAsync(HttpContext context, WebSocket webSocket)
         {
-            CancellationTokenSource tokenSource = new CancellationTokenSource();
-
             try
             {
                 while (!webSocket.CloseStatus.HasValue)
                 {
-                    await ProcessLineAsync(context, webSocket, tokenSource.Token).ConfigureAwait(false);
+                    await ProcessLineAsync(context, webSocket).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -53,18 +51,18 @@ namespace PipeWebSocket
             }
             finally
             {
-                tokenSource.Cancel();
                 WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
             }
         }
 
-        private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket, CancellationToken token)
+        private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket)
         {
             using ResizeMemory<byte> bufferPool = new ResizeMemory<byte>(WebSocketOptionsEx.ReceiveBufferSize);
 
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(bufferPool.GetMemory(WebSocketOptionsEx.ReceiveBufferSize), token).ConfigureAwait(false);
+                var buffer = bufferPool.GetMemory(WebSocketOptionsEx.ReceiveBufferSize);
+                var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                 bufferPool.Advance(result.Count);
 
                 if (bufferPool.Count > WebSocketOptionsEx.MaxPackageLength)
@@ -73,7 +71,7 @@ namespace PipeWebSocket
                 if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
+                    await WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
                 }
 
                 if (result.EndOfMessage)
@@ -81,7 +79,7 @@ namespace PipeWebSocket
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
                         var msgRes = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
+                        await WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
                     }
 
                     break;
