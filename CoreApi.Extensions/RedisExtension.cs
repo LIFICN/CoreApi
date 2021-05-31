@@ -18,24 +18,36 @@ namespace CoreApi.Extensions
 
         public IDatabase GetDatabase() => RedisMultiplexer.GetDatabase();
 
-        public object GetKey(string key)
+        public T Deserialize<T>(string value)
         {
-            return GetDatabase().StringGet(key);
+            if (string.IsNullOrWhiteSpace(value)) throw new NullReferenceException();
+            return value.MapTo<T>();
         }
 
-        public async Task<object> GetKeyAsync(string key)
+        public string Serialize<T>(T value)
         {
-            return await GetDatabase().StringGetAsync(key);
+            if (value == null) throw new NullReferenceException();
+            return value.ToJson<T>();
         }
 
-        public bool SetKey(string key, string value, TimeSpan? expiry = null)
+        public T GetKey<T>(string key)
         {
-            return GetDatabase().StringSet(key, value, expiry);
+            return Deserialize<T>(GetDatabase().StringGet(key));
         }
 
-        public async Task<bool> SetKeyAsync(string key, string value, TimeSpan? expiry = null)
+        public async Task<T> GetKeyAsync<T>(string key)
         {
-            return await GetDatabase().StringSetAsync(key, value, expiry);
+            return Deserialize<T>(await GetDatabase().StringGetAsync(key));
+        }
+
+        public bool SetKey<T>(string key, T value, TimeSpan? expiry = null)
+        {
+            return GetDatabase().StringSet(key, Serialize<T>(value), expiry);
+        }
+
+        public async Task<bool> SetKeyAsync<T>(string key, T value, TimeSpan? expiry = null)
+        {
+            return await GetDatabase().StringSetAsync(key, Serialize<T>(value), expiry);
         }
 
         public bool DeleteKey(string key)
@@ -68,44 +80,46 @@ namespace CoreApi.Extensions
             return await GetDatabase().KeyExistsAsync(key);
         }
 
-        public void HashSet(string key, string field, string value)
+        public void HashSet<T>(string key, string field, T value)
         {
-            GetDatabase().HashSet(key, field, value);
+            GetDatabase().HashSet(key, field, Serialize<T>(value));
         }
 
-        public async Task HashSetAsync(string key, string field, string value)
+        public async Task HashSetAsync<T>(string key, string field, T value)
         {
-            await GetDatabase().HashSetAsync(key, field, value);
+            await GetDatabase().HashSetAsync(key, field, Serialize<T>(value));
         }
 
-        public void HashSet(string key, KeyValuePair<string, string>[] valuePairs)
+        public void HashSet<T>(string key, KeyValuePair<string, T>[] valuePairs)
         {
-            GetDatabase().HashSet(key, valuePairs.Select(v => new HashEntry(v.Key, v.Value)).ToArray());
+            GetDatabase().HashSet(key, valuePairs.Select(v => new HashEntry(v.Key, Serialize<T>(v.Value))).ToArray());
         }
 
-        public async Task HashSetAsync(string key, KeyValuePair<string, string>[] valuePairs)
+        public async Task HashSetAsync<T>(string key, KeyValuePair<string, T>[] valuePairs)
         {
-            await GetDatabase().HashSetAsync(key, valuePairs.Select(v => new HashEntry(v.Key, v.Value)).ToArray());
+            await GetDatabase().HashSetAsync(key, valuePairs.Select(v => new HashEntry(v.Key, Serialize<T>(v.Value))).ToArray());
         }
 
-        public object HashGet(string key, string field)
+        public T HashGet<T>(string key, string field)
         {
-            return GetDatabase().HashGet(key, field);
+            return Deserialize<T>(GetDatabase().HashGet(key, field));
         }
 
-        public async Task<object> HashGetAsync(string key, string field)
+        public async Task<T> HashGetAsync<T>(string key, string field)
         {
-            return await GetDatabase().HashGetAsync(key, field);
+            return Deserialize<T>(await GetDatabase().HashGetAsync(key, field));
         }
 
-        public object HashGetAll(string key)
+        public KeyValuePair<string, string>[] HashGetAll(string key)
         {
-            return GetDatabase().HashGetAll(key);
+            var res = GetDatabase().HashGetAll(key);
+            return res != null && res.Length > 0 ? res.Select(v => new KeyValuePair<string, string>(v.Name, v.Value)).ToArray() : null;
         }
 
-        public async Task<HashEntry[]> HashGetAllAsync(string key)
+        public async Task<KeyValuePair<string, string>[]> HashGetAllAsync(string key)
         {
-            return await GetDatabase().HashGetAllAsync(key);
+            var res = await GetDatabase().HashGetAllAsync(key);
+            return res != null && res.Length > 0 ? res.Select(v => new KeyValuePair<string, string>(v.Name, v.Value)).ToArray() : null;
         }
 
         public bool HashDelete(string key, string field)
