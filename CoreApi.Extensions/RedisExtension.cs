@@ -20,13 +20,13 @@ namespace CoreApi.Extensions
 
         public T Deserialize<T>(string value)
         {
-            if (string.IsNullOrWhiteSpace(value)) throw new NullReferenceException();
+            if (string.IsNullOrWhiteSpace(value)) return default(T);
             return value.MapTo<T>();
         }
 
         public string Serialize<T>(T value)
         {
-            if (value == null) throw new NullReferenceException();
+            if (value == null) return string.Empty;
             return value.ToJson<T>();
         }
 
@@ -58,6 +58,16 @@ namespace CoreApi.Extensions
         public async Task<bool> DeleteKeyAsync(string key)
         {
             return await GetDatabase().KeyDeleteAsync(key);
+        }
+
+        public long DeleteKey(string[] keys)
+        {
+            return GetDatabase().KeyDelete(keys.Select(v => new RedisKey(v)).ToArray());
+        }
+
+        public async Task<long> DeleteKeyAsync(string[] keys)
+        {
+            return await GetDatabase().KeyDeleteAsync(keys.Select(v => new RedisKey(v)).ToArray());
         }
 
         public bool ExpireKey(string key, TimeSpan? expiry = null)
