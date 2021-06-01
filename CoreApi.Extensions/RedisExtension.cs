@@ -18,17 +18,9 @@ namespace CoreApi.Extensions
 
         public IDatabase GetDatabase() => RedisMultiplexer.GetDatabase();
 
-        public T Deserialize<T>(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value)) return default(T);
-            return value.MapTo<T>();
-        }
+        public T Deserialize<T>(string value) => value.MapTo<T>();
 
-        public string Serialize<T>(T value)
-        {
-            if (value == null) return string.Empty;
-            return value.ToJson<T>();
-        }
+        public string Serialize<T>(T value) => value.ToJson<T>();
 
         public T GetKey<T>(string key)
         {

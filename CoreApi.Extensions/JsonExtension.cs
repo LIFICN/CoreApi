@@ -25,11 +25,13 @@ namespace CoreApi.Extensions
 
         public static string ToJson<T>(this T value)
         {
+            if (value == null) return string.Empty;
             return JsonSerializer.Serialize(value, SerializerOptions);
         }
 
         public static T MapTo<T>(this string json)
         {
+            if (string.IsNullOrWhiteSpace(json)) return default(T);
             return JsonSerializer.Deserialize<T>(json, SerializerOptions);
         }
     }
