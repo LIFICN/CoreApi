@@ -6,3 +6,4 @@
 *.user
 *.rsa
 *.jwk
+**/.vscode/*

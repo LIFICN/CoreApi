@@ -29,7 +29,7 @@ namespace CoreApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("di")]
-        public string Test()
+        public string DI()
         {
             return testService.SayService("DI,Success!");
         }
@@ -39,7 +39,7 @@ namespace CoreApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("ef-page")]
-        public async Task<IActionResult> Get(int pageIndex, int pageSize)
+        public async Task<IActionResult> EFPage(int pageIndex, int pageSize)
         {
             (dynamic data, int total) = await testService.GetListAsync(pageIndex, pageSize);
             return Ok(new { data, total });
@@ -51,7 +51,7 @@ namespace CoreApi.Controllers
         /// <param name="pageIndex">页码</param>
         /// <param name="pageSize">条数</param>
         /// <returns></returns>
-        [HttpGet("dapper")]
+        [HttpGet("dapper-page")]
         public async Task<dynamic> DapperPage(int pageIndex, int pageSize)
         {
             var (data, total) = await testService.GetPageListAsync<dynamic>(pageIndex, pageSize);
@@ -62,7 +62,7 @@ namespace CoreApi.Controllers
         /// 获取客户端IP
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ip")]
+        [HttpGet("getIP")]
         public IActionResult GetIP()
         {
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
