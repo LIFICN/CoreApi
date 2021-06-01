@@ -51,7 +51,7 @@ namespace CoreApi.Controllers
         /// <param name="pageIndex">页码</param>
         /// <param name="pageSize">条数</param>
         /// <returns></returns>
-        [HttpGet("[action]")]
+        [HttpGet("dapper")]
         public async Task<dynamic> DapperPage(int pageIndex, int pageSize)
         {
             var (data, total) = await testService.GetPageListAsync<dynamic>(pageIndex, pageSize);
