@@ -26,7 +26,6 @@ namespace PipeWebSocket
                 if (context.WebSockets.IsWebSocketRequest)
                 {
                     using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-                    WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
                     await ProcessAsync(context, webSocket).ConfigureAwait(false);
                 }
                 else
@@ -40,6 +39,8 @@ namespace PipeWebSocket
         {
             try
             {
+                WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
+
                 while (!webSocket.CloseStatus.HasValue)
                 {
                     await ProcessLineAsync(context, webSocket).ConfigureAwait(false);
