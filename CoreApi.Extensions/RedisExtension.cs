@@ -82,14 +82,14 @@ namespace CoreApi.Extensions
             return await GetDatabase().KeyExistsAsync(key);
         }
 
-        public void HashSet<T>(string key, string field, T value)
+        public bool HashSet<T>(string key, string field, T value)
         {
-            GetDatabase().HashSet(key, field, Serialize<T>(value));
+            return GetDatabase().HashSet(key, field, Serialize<T>(value));
         }
 
-        public async Task HashSetAsync<T>(string key, string field, T value)
+        public async Task<bool> HashSetAsync<T>(string key, string field, T value)
         {
-            await GetDatabase().HashSetAsync(key, field, Serialize<T>(value));
+            return await GetDatabase().HashSetAsync(key, field, Serialize<T>(value));
         }
 
         public void HashSet<T>(string key, KeyValuePair<string, T>[] valuePairs)
