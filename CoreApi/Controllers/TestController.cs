@@ -94,11 +94,11 @@ namespace CoreApi.Controllers
         /// <summary>
         /// 根据经纬度查询具体位置信息
         /// </summary>
-        /// <param name="lat">纬度</param>
         /// <param name="lng">经度</param>
+        /// <param name="lat">纬度</param>
         /// <returns></returns>
         [HttpGet("reverseGeocoding")]
-        public async Task<IActionResult> ReverseGeocoding(string lat, string lng)
+        public async Task<IActionResult> ReverseGeocoding(string lng, string lat)
         {
             if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lng))
                 return BadRequest("经纬度不能为空");
