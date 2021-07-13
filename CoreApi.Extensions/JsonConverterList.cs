@@ -6,7 +6,7 @@ namespace CoreApi.Extensions
 {
     public class DateTimeJsonConverter : JsonConverter<DateTime>
     {
-        private string format = string.Empty;
+        private readonly string format = string.Empty;
 
         public DateTimeJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
         {
@@ -26,7 +26,7 @@ namespace CoreApi.Extensions
 
     public class DateTimeNullableJsonConverter : JsonConverter<DateTime?>
     {
-        private string format = string.Empty;
+        private readonly string format = string.Empty;
 
         public DateTimeNullableJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
         {

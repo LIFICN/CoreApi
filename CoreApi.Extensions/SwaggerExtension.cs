@@ -88,7 +88,7 @@ namespace CoreApi.Extensions
             #endregion
         }
 
-        public static void UseSawggerAndUI(this IApplicationBuilder app)
+        public static void UseSawggerAndUI(this IApplicationBuilder app, string routePrefix = "ApiDocs")
         {
             #region 启用Swagger中间件
             app.UseSwagger();
@@ -96,7 +96,7 @@ namespace CoreApi.Extensions
             {
                 c.DocExpansion(DocExpansion.None); //None:折叠所有Tag
                 //c.DefaultModelsExpandDepth(-1); // 不显示Models
-                c.RoutePrefix = "ApiDocs";  //去掉/swagger
+                c.RoutePrefix = routePrefix;  //去掉/swagger
                 var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
 
                 foreach (var item in provider.ApiVersionDescriptions)

@@ -8,7 +8,7 @@ namespace CoreApi.Services
 {
     public class TestService : ITestService
     {
-        private ITestRepository testRepository;
+        private readonly ITestRepository testRepository;
 
         public TestService(ITestRepository _testRepository)
         {
