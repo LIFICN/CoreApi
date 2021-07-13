@@ -6,10 +6,10 @@ namespace WebSocketServer.Controllers
     [Route("[controller]")]
     public class TestController : ControllerBase
     {
-        [HttpGet("get")]
+        [HttpGet("hello")]
         public ActionResult Get()
         {
-            return Ok("hellow,world!");
+            return Ok("Please connect ws://localhost:5000/");
         }
     }
 }

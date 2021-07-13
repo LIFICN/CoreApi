@@ -25,7 +25,7 @@ namespace CoreApi
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            SQLConnectionString = configuration.GetValue<string>("SQLConnectionString");
+            SQLConnectionString = Configuration.GetValue<string>("DBServer:Sqlite");
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;  // Dapper支持数据库字段带下划线映射
             DapperExtension.SqlConnectionType = DapperExtension.SqlType.MySql_Sqlite;  //指定扩展方法数据库类型
         }
@@ -85,7 +85,7 @@ namespace CoreApi
             #region 配置EF Core
             services.AddDbContextPool<CoreDbContext>(options =>
             {
-                options.UseSqlite($@"Data Source=E:\ToolKit\sqliteTest.db");
+                options.UseSqlite(SQLConnectionString);
             }, 90);
             #endregion
         }

@@ -10,10 +10,10 @@ namespace PipeWebSocket
         public string Path { get; set; } = "/";
         public int ReceiveBufferSize { get; set; } = 4 * 1024;
         public int MaxPackageLength { get; set; } = 1 * 1024 * 1024;
-        public Action<HttpContext, WebSocket> OnOpen { get; set; }
+        public Func<HttpContext, WebSocket, Task> OnOpen { get; set; }
         public Func<HttpContext, WebSocketMsgResult, string, ReadOnlyMemory<byte>, Task> OnMessage { get; set; }
-        public Action<HttpContext, WebSocket> OnClose { get; set; }
-        public Action<HttpContext, WebSocket, Exception> OnException { get; set; }
+        public Func<HttpContext, WebSocket, Task> OnClose { get; set; }
+        public Func<HttpContext, WebSocket, Exception, Task> OnException { get; set; }
     }
 
     public class WebSocketMsgResult

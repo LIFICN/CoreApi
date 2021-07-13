@@ -22,7 +22,7 @@ namespace WebSocketServer
                         builder.Limits.MaxConcurrentUpgradedConnections = 20000;
                     });
 
-                    webBuilder.UseUrls(new string[] { "http://localhost:8080", "http://localhost:8081" });
+                    //webBuilder.UseUrls(new string[] { "http://localhost:8080", "http://localhost:8081" });
                     webBuilder.UseStartup<Startup>();
                 });
     }

@@ -19,9 +19,7 @@ namespace PipeWebSocket
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var path = WebSocketOptionsEx.Path;
-
-            if (context.Request.Path.StartsWithSegments(path))
+            if (context.Request.Path.StartsWithSegments(WebSocketOptionsEx.Path))
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {
@@ -39,7 +37,7 @@ namespace PipeWebSocket
         {
             try
             {
-                WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
+                await WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
 
                 while (!webSocket.CloseStatus.HasValue)
                 {
@@ -48,11 +46,11 @@ namespace PipeWebSocket
             }
             catch (Exception ex)
             {
-                WebSocketOptionsEx.OnException?.Invoke(context, webSocket, ex);
+                await WebSocketOptionsEx.OnException?.Invoke(context, webSocket, ex);
             }
             finally
             {
-                WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
+                await WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
             }
         }
 

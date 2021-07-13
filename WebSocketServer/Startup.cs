@@ -8,6 +8,7 @@ using PipeWebSocket;
 using System;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace WebSocketServer
 {
@@ -34,10 +35,8 @@ namespace WebSocketServer
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseHttpsRedirection();
-
+            //app.UseHttpsRedirection(); //if you want to use wss, please open
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -61,6 +60,7 @@ namespace WebSocketServer
                     string id = context.Connection.Id;
                     WebSocketCache.TryAdd(id, websocket);
                     Console.WriteLine($"{id} opened");
+                    return Task.CompletedTask;
                 };
                 options.OnMessage = async (context, webSocketMsgResult, message, file) =>
                 {
@@ -82,11 +82,13 @@ namespace WebSocketServer
                     string id = context.Connection.Id;
                     WebSocketCache.TryRemove(id, out _);
                     Console.WriteLine($"{id} closed");
+                    return Task.CompletedTask;
                 };
                 options.OnException = (context, webSocket, ex) =>
                 {
                     string id = context.Connection.Id;
                     Console.WriteLine($"{id} {ex.Message}");
+                    return Task.CompletedTask;
                 };
             });
         }
