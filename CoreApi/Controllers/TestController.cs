@@ -46,19 +46,6 @@ namespace CoreApi.Controllers
         }
 
         /// <summary>
-        /// dapper多表分页测试
-        /// </summary>
-        /// <param name="pageIndex">页码</param>
-        /// <param name="pageSize">条数</param>
-        /// <returns></returns>
-        [HttpGet("dapper-page")]
-        public async Task<dynamic> DapperPage(int pageIndex, int pageSize)
-        {
-            var (data, total) = await testService.GetPageListAsync<dynamic>(pageIndex, pageSize);
-            return new { data, total };
-        }
-
-        /// <summary>
         /// 获取客户端IP
         /// </summary>
         /// <returns></returns>

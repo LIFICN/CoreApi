@@ -95,7 +95,7 @@ namespace CoreApi.Extensions
             app.UseSwaggerUI(c =>
             {
                 c.DocExpansion(DocExpansion.None); //None:折叠所有Tag
-                //c.DefaultModelsExpandDepth(-1); // 不显示Models
+                c.DefaultModelsExpandDepth(0); // 是否显示Models -1:不显示 0:折叠 1:展开
                 c.RoutePrefix = routePrefix;  //swagger 路由
                 var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
 

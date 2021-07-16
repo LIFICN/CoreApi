@@ -39,18 +39,5 @@ namespace CoreApi.Repositories
             trans.Commit();
             return (data, total);
         }
-
-        public async Task<(IEnumerable<T>, int)> DapperPageTestAsync<T>(int pageIndex, int pageSize)
-        {
-            return await base.GetListAsync<T>(p =>
-            {
-                p.TableName = new string[] { "test1", "test2" };
-                p.KeyColumn = "id";
-                p.PageIndex = pageIndex;
-                p.PageSize = pageSize;
-                p.On = new string[] { "test1.id=test2.id" };
-                p.Column = "test1.id,test2.name";
-            }).ConfigureAwait(false);
-        }
     }
 }

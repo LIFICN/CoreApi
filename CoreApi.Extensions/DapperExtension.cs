@@ -29,6 +29,11 @@ namespace CoreApi.Extensions
             MySql_Sqlite
         }
 
+        static DapperExtension()
+        {
+            DefaultTypeMap.MatchNamesWithUnderscores = true;
+        }
+
         public static SqlType? SqlConnectionType { get; set; }
 
         public static async Task<(List<T>, int)> PageAsync<T>(this IDbConnection conn, Action<PageConfig> action)

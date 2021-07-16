@@ -26,8 +26,6 @@ namespace CoreApi
         {
             Configuration = configuration;
             SQLConnectionString = Configuration.GetValue<string>("DBServer:Sqlite");
-            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;  // Dapper支持数据库字段带下划线映射
-            DapperExtension.SqlConnectionType = DapperExtension.SqlType.MySql_Sqlite;  //指定扩展方法数据库类型
         }
 
         public void ConfigureServices(IServiceCollection services)

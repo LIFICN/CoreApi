@@ -1,5 +1,4 @@
-﻿using CoreApi.Extensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -13,8 +12,7 @@ namespace CoreApi.Repositories
     {
         public Task<bool> SaveChangesAsync();
         public IDbConnection GetDbConnection();
-        public Task<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action);
-        public Task<(List<T>,int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true);
+        public Task<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true);
         public Task<T> GetOneAsync(Expression<Func<T, bool>> expression, bool isNoTracking = true);
         public Task<T> AddAsync(T entity);
         public Task<bool> UpdateAsync(T entity);

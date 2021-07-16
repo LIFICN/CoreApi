@@ -1,5 +1,4 @@
-﻿using CoreApi.Extensions;
-using CoreApi.Models;
+﻿using CoreApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -32,16 +31,6 @@ namespace CoreApi.Repositories
         public DbSet<TResult> GetDbSet<TResult>() where TResult : class
         {
             return coreDbContext.Set<TResult>();
-        }
-
-        /// <summary>
-        /// 该方法走的是Dapper,走事务查询
-        /// </summary>
-        /// <returns></returns>
-        public async Task<(List<TResult>, int)> GetListAsync<TResult>(Action<DapperExtension.PageConfig> action)
-        {
-            var dbConnection = GetDbConnection(); //请勿释放
-            return await dbConnection.PageAsync<TResult>(action).ConfigureAwait(false);
         }
 
         public virtual async Task<(List<T>, int)> GetListAsync(Expression<Func<T, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)

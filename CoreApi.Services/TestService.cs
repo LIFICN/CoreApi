@@ -1,7 +1,6 @@
 ﻿using CoreApi.Repositories.Interfaces;
 using CoreApi.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CoreApi.Services
@@ -20,11 +19,6 @@ namespace CoreApi.Services
         public async Task<ValueTuple<dynamic, int>> GetListAsync(int pageIndex, int pageSize)
         {
             return await testRepository.GetListAsync(null, pageIndex, pageSize, true);
-        }
-
-        public async Task<(IEnumerable<T>, int)> GetPageListAsync<T>(int pageIndex, int pageSize)
-        {
-            return await testRepository.DapperPageTestAsync<T>(pageIndex, pageSize);
         }
     }
 }
