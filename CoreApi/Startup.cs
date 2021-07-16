@@ -1,7 +1,6 @@
 ﻿using CoreApi.Extensions;
 using CoreApi.Filters;
 using CoreApi.Middleware;
-using CoreApi.Models;
 using CoreApi.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

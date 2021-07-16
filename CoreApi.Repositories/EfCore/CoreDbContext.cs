@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace CoreApi.Models
+namespace CoreApi.Repositories
 {
     public class CoreDbContext : DbContext
     {
