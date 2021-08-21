@@ -1,2 +1,2 @@
 # CoreApi
-.net core project
+asp.net core webapi template
