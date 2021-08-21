@@ -1,0 +1,9 @@
+# config #
+##########
+**/bin/*
+**/obj/*
+**/.vs/*
+*.user
+*.rsa
+*.jwk
+**/.vscode/*
