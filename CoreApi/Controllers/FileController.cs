@@ -6,50 +6,49 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace CoreApi.Controllers
+namespace CoreApi.Controllers;
+
+/// <summary>
+/// 文件上传下载示例
+/// </summary>
+[AllowAnonymous]
+[ApiVersion("1.0")]
+public class FileController : BaseController
 {
+    public static string FilePath => $"{AppContext.BaseDirectory}Files";
+
     /// <summary>
-    /// 文件上传下载示例
+    /// 多文件上传
     /// </summary>
-    [AllowAnonymous]
-    [ApiVersion("1.0")]
-    public class FileController : BaseController
+    [HttpPost("upload")]
+    public async Task<IActionResult> FileUpload(List<IFormFile> fileCollection)
     {
-        public static string FilePath => $"{AppContext.BaseDirectory}Files";
+        //var fileCollection = HttpContext.Request.Form.Files;
+        if (fileCollection == null || fileCollection.Count == 0)
+            return BadRequest("上传文件不能为空");
 
-        /// <summary>
-        /// 多文件上传
-        /// </summary>
-        [HttpPost("upload")]
-        public async Task<IActionResult> FileUpload(List<IFormFile> fileCollection)
+        if (!Directory.Exists(FilePath)) Directory.CreateDirectory(FilePath);
+
+        foreach (IFormFile item in fileCollection)
         {
-            //var fileCollection = HttpContext.Request.Form.Files;
-            if (fileCollection == null || fileCollection.Count == 0)
-                return BadRequest("上传文件不能为空");
-
-            if (!Directory.Exists(FilePath)) Directory.CreateDirectory(FilePath);
-
-            foreach (IFormFile item in fileCollection)
-            {
-                using FileStream fileStream = new FileStream($@"{FilePath}\{item.FileName}", FileMode.Create);
-                await item.CopyToAsync(fileStream).ConfigureAwait(false);
-                await fileStream.FlushAsync().ConfigureAwait(false);
-            }
-
-            return Ok("文件上传成功");
+            using FileStream fileStream = new FileStream($@"{FilePath}\{item.FileName}", FileMode.Create);
+            await item.CopyToAsync(fileStream).ConfigureAwait(false);
+            await fileStream.FlushAsync().ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// 文件下载
-        /// </summary>
-        [HttpPost("download/{fileName}")]
-        public IActionResult FileDownload(string fileName)
-        {
-            var path = $@"{FilePath}\{fileName}";
-            if (!System.IO.File.Exists(path)) return BadRequest("文件不存在");
+        return Ok("文件上传成功");
+    }
 
-            var fileStream = System.IO.File.OpenRead(path);
-            return File(fileStream, "application/octet-stream", fileName);
-        }
+    /// <summary>
+    /// 文件下载
+    /// </summary>
+    [HttpPost("download/{fileName}")]
+    public IActionResult FileDownload(string fileName)
+    {
+        var path = $@"{FilePath}\{fileName}";
+        if (!System.IO.File.Exists(path)) return BadRequest("文件不存在");
+
+        var fileStream = System.IO.File.OpenRead(path);
+        return File(fileStream, "application/octet-stream", fileName);
     }
 }

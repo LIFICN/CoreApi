@@ -2,45 +2,44 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CoreApi.Extensions
+namespace CoreApi.Extensions;
+
+public class DateTimeJsonConverter : JsonConverter<DateTime>
 {
-    public class DateTimeJsonConverter : JsonConverter<DateTime>
+    private readonly string format = string.Empty;
+
+    public DateTimeJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
     {
-        private readonly string format = string.Empty;
-
-        public DateTimeJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
-        {
-            format = timeFormat;
-        }
-
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return DateTime.TryParse(reader.GetString(), out DateTime value) ? value : default;
-        }
-
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value != default ? value.ToString(format) : "");
-        }
+        format = timeFormat;
     }
 
-    public class DateTimeNullableJsonConverter : JsonConverter<DateTime?>
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        private readonly string format = string.Empty;
+        return DateTime.TryParse(reader.GetString(), out DateTime value) ? value : default;
+    }
 
-        public DateTimeNullableJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
-        {
-            format = timeFormat;
-        }
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value != default ? value.ToString(format) : "");
+    }
+}
 
-        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return DateTime.TryParse(reader.GetString(), out DateTime value) ? value : default;
-        }
+public class DateTimeNullableJsonConverter : JsonConverter<DateTime?>
+{
+    private readonly string format = string.Empty;
 
-        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value?.ToString(format));
-        }
+    public DateTimeNullableJsonConverter(string timeFormat = "yyyy-MM-dd HH:mm:ss")
+    {
+        format = timeFormat;
+    }
+
+    public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return DateTime.TryParse(reader.GetString(), out DateTime value) ? value : default;
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value?.ToString(format));
     }
 }

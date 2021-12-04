@@ -5,84 +5,83 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PipeWebSocket
+namespace PipeWebSocket;
+
+internal class WebSocketMiddleware
 {
-    internal class WebSocketMiddleware
+    public PipeWebSocketOptions WebSocketOptionsEx { get => WebSocketExtension.GlobalOptions; }
+    private readonly RequestDelegate _next;
+
+    public WebSocketMiddleware(RequestDelegate next)
     {
-        public PipeWebSocketOptions WebSocketOptionsEx { get => WebSocketExtension.GlobalOptions; }
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public WebSocketMiddleware(RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context)
+    {
+        if (context.Request.Path.StartsWithSegments(WebSocketOptionsEx.Path))
         {
-            _next = next;
-        }
-
-        public async Task InvokeAsync(HttpContext context)
-        {
-            if (context.Request.Path.StartsWithSegments(WebSocketOptionsEx.Path))
+            if (context.WebSockets.IsWebSocketRequest)
             {
-                if (context.WebSockets.IsWebSocketRequest)
-                {
-                    using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-                    await ProcessAsync(context, webSocket).ConfigureAwait(false);
-                }
-                else
-                    context.Response.StatusCode = 400;
+                using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
+                await ProcessAsync(context, webSocket).ConfigureAwait(false);
             }
             else
-                await _next(context);
+                context.Response.StatusCode = 400;
         }
+        else
+            await _next(context);
+    }
 
-        private async ValueTask ProcessAsync(HttpContext context, WebSocket webSocket)
+    private async ValueTask ProcessAsync(HttpContext context, WebSocket webSocket)
+    {
+        try
         {
-            try
-            {
-                await WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
+            await WebSocketOptionsEx.OnOpen?.Invoke(context, webSocket);
 
-                while (!webSocket.CloseStatus.HasValue)
-                {
-                    await ProcessLineAsync(context, webSocket).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
+            while (!webSocket.CloseStatus.HasValue)
             {
-                await WebSocketOptionsEx.OnException?.Invoke(context, webSocket, ex);
-            }
-            finally
-            {
-                await WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
+                await ProcessLineAsync(context, webSocket).ConfigureAwait(false);
             }
         }
-
-        private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket)
+        catch (Exception ex)
         {
-            using ResizeMemory<byte> bufferPool = new ResizeMemory<byte>(WebSocketOptionsEx.ReceiveBufferSize);
+            await WebSocketOptionsEx.OnException?.Invoke(context, webSocket, ex);
+        }
+        finally
+        {
+            await WebSocketOptionsEx.OnClose?.Invoke(context, webSocket);
+        }
+    }
 
-            while (true)
+    private async ValueTask ProcessLineAsync(HttpContext context, WebSocket webSocket)
+    {
+        using ResizeMemory<byte> bufferPool = new ResizeMemory<byte>(WebSocketOptionsEx.ReceiveBufferSize);
+
+        while (true)
+        {
+            var buffer = bufferPool.GetMemory(WebSocketOptionsEx.ReceiveBufferSize);
+            var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+            bufferPool.Advance(result.Count);
+
+            if (bufferPool.Count > WebSocketOptionsEx.MaxPackageLength)
+                throw new Exception("the packet length exceeds the maximum packet length");
+
+            if (result.MessageType == WebSocketMessageType.Binary)
             {
-                var buffer = bufferPool.GetMemory(WebSocketOptionsEx.ReceiveBufferSize);
-                var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-                bufferPool.Advance(result.Count);
+                var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
+                await WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
+            }
 
-                if (bufferPool.Count > WebSocketOptionsEx.MaxPackageLength)
-                    throw new Exception("the packet length exceeds the maximum packet length");
-
-                if (result.MessageType == WebSocketMessageType.Binary)
+            if (result.EndOfMessage)
+            {
+                if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    var msgResult = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                    await WebSocketOptionsEx.OnMessage?.Invoke(context, msgResult, null, bufferPool.Memory);
+                    var msgRes = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
+                    await WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
                 }
 
-                if (result.EndOfMessage)
-                {
-                    if (result.MessageType == WebSocketMessageType.Text)
-                    {
-                        var msgRes = new WebSocketMsgResult(webSocket, result.MessageType, result.EndOfMessage);
-                        await WebSocketOptionsEx.OnMessage?.Invoke(context, msgRes, Encoding.UTF8.GetString(bufferPool.Memory.Span), null);
-                    }
-
-                    break;
-                }
+                break;
             }
         }
     }
