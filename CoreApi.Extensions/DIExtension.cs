@@ -17,10 +17,10 @@ public static class DIExtension
 
         foreach (var implementationType in classArray)
         {
-            var serviceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
+            var interfaceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
 
-            if (serviceType != null)
-                services.AddScoped(serviceType, implementationType);
+            if (interfaceType != null)
+                services.AddScoped(interfaceType, implementationType);
         }
     }
 
@@ -35,10 +35,10 @@ public static class DIExtension
 
         foreach (var implementationType in classArray)
         {
-            var serviceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
+            var interfaceType = interfaceArray.FirstOrDefault(d => CheckAssignable(d, implementationType, checkClassName));
 
-            if (serviceType != null)
-                services.AddScoped(serviceType, implementationType);
+            if (interfaceType != null)
+                services.AddScoped(interfaceType, implementationType);
         }
     }
 

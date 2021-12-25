@@ -1,10 +1,10 @@
-﻿using CoreApi.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CoreApi.Repositories.Interfaces;
 
 namespace CoreApi.Controllers;
 
@@ -15,12 +15,12 @@ namespace CoreApi.Controllers;
 [ApiVersionNeutral]
 public class TestController : BaseController
 {
-    private readonly ITestService testService;
+    private readonly ITestRepository testRepository;
     private readonly HttpClient httpClient;
 
-    public TestController(ITestService _testService, IHttpClientFactory httpClientFactory)
+    public TestController(ITestRepository _testService, IHttpClientFactory httpClientFactory)
     {
-        testService = _testService;
+        testRepository = _testService;
         httpClient = httpClientFactory.CreateClient();
     }
 
@@ -31,7 +31,7 @@ public class TestController : BaseController
     [HttpGet("di")]
     public string DI()
     {
-        return testService.SayService("DI,Success!");
+        return testRepository.SayDI("DI,Success!");
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class TestController : BaseController
     [HttpGet("ef-page")]
     public async Task<IActionResult> EFPage(int pageIndex, int pageSize)
     {
-        (dynamic data, int total) = await testService.GetListAsync(pageIndex, pageSize);
+        (dynamic data, int total) = await testRepository.GetListAsync(null, pageIndex, pageSize);
         return Ok(new { data, total });
     }
 

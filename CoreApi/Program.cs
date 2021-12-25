@@ -108,7 +108,6 @@ public class Program
 
         //批量依赖注入
         services.AddScoped("CoreApi.Repositories", true);
-        services.AddScoped("CoreApi.Services");
         services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
         //添加jwt支持
