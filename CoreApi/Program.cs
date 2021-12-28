@@ -63,7 +63,6 @@ public class Program
         builder.WebHost.UseSerilog(); // add serilog
 
         BuildServices(builder.Services);
-
         var app = builder.Build();
         BuildApp(app);
         app.Run();

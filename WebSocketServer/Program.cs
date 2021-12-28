@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using PipeWebSocket;
@@ -35,11 +34,11 @@ public class Program
             kestrelOptions.Limits.MaxConcurrentUpgradedConnections = 20000;
         });
 
-        //builder.WebHost.UseUrls(new string[] { "http://localhost:8080", "http://localhost:8081" });
-
         BuildServices(builder.Services);
-
         var app = builder.Build();
+
+        //builder.WebHost.UseUrls(new string[] { "http://*:8080", "http://*:8081" });
+
         BuildApp(app);
         app.Run();
     }
