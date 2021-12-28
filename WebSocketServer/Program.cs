@@ -36,10 +36,9 @@ public class Program
 
         BuildServices(builder.Services);
         var app = builder.Build();
-
-        //builder.WebHost.UseUrls(new string[] { "http://*:8080", "http://*:8081" });
-
         BuildApp(app);
+        //app.Urls.Add("http://*:8080");
+        //app.Urls.Add("http://*:8081");
         app.Run();
     }
 
