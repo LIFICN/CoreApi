@@ -69,7 +69,7 @@ public static class JwtExtension
                             context.HandleResponse(); //此处代码为终止.Net Core默认的返回类型和数据结果，这个很重要哦，必须
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            await context.Response.WriteAsync(new { code = 401, msg = "token已过期" }.ToJson());
+                            await context.Response.WriteAsync(new { code = 401, msg = "token已过期或为空" }.ToJson());
                         }
                     };
                 });

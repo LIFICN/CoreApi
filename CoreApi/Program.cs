@@ -128,6 +128,9 @@ public class Program
 
     private static void BuildApp(WebApplication app)
     {
+        //异常处理中间件,可处理管道异常
+        app.UseMiddleware<ExceptionMiddleware>();
+
         //反向代理时获取真实IP
         app.UseForwardedHeaders();
 
@@ -139,9 +142,6 @@ public class Program
 
         //是否重定向到Https
         //app.UseHttpsRedirection();
-
-        //异常处理中间件,可处理管道异常
-        app.UseMiddleware<ExceptionMiddleware>();
 
         app.UseRouting();
 

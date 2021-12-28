@@ -11,7 +11,7 @@ public class ExceptionFilter : IExceptionFilter, IAsyncExceptionFilter
     public void OnException(ExceptionContext context)
     {
         string message = context.Exception.Message;
-        var source = context.Exception.TargetSite?.DeclaringType?.FullName;
+        var source = context.Exception.Source;
         string json = new { error = $"{message} | {source}" }.ToJson();
 
         if (context.Exception != null)

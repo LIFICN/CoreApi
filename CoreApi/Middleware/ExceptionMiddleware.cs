@@ -1,6 +1,6 @@
 ﻿using CoreApi.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,12 +10,10 @@ namespace CoreApi.Middleware;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ExceptionMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
     }
 
     public async Task Invoke(HttpContext context)
@@ -44,7 +42,7 @@ public class ExceptionMiddleware
             else if (ex != null)
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            _logger.LogError(ex, ex.Message);
+            Log.Error("{Message} | {Source}", ex.Message, ex.Source);
             await response.WriteAsync(new { error = ex.Message }.ToJson()).ConfigureAwait(false);
         }
     }
