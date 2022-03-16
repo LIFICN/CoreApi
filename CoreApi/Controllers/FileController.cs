@@ -15,12 +15,13 @@ namespace CoreApi.Controllers;
 [ApiVersion("1.0")]
 public class FileController : BaseController
 {
-    public static string FilePath => $"{AppContext.BaseDirectory}Files";
+    public static string FilePath => $"{AppContext.BaseDirectory}files";
 
     /// <summary>
     /// 多文件上传
     /// </summary>
     [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> FileUpload(List<IFormFile> fileCollection)
     {
         //var fileCollection = HttpContext.Request.Form.Files;

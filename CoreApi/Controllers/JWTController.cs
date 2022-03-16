@@ -11,9 +11,9 @@ namespace CoreApi.Controllers;
 /// JWT 示例
 /// </summary>
 [ApiVersionNeutral]
-public class JwtTestController : BaseController
+public class JwtController : BaseController
 {
-    public JwtTestController()
+    public JwtController()
     {
     }
 
