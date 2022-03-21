@@ -65,6 +65,17 @@ public class Program
         BuildServices(builder.Services);
         var app = builder.Build();
         BuildApp(app);
+
+        var urls = Configuration.GetValue<string>("ApplicationUrl").Trim();
+        if (!string.IsNullOrWhiteSpace(urls))
+        {
+            Array.ForEach(urls.Split(';'), url =>
+            {
+                app.Urls.Add(url);
+                Log.Information($"Server Url:{url}");
+            });
+        }
+
         app.Run();
     }
 
@@ -81,7 +92,8 @@ public class Program
         {
             option.AddPolicy(CorsName, builder =>
             {
-                builder.WithOrigins("http://localhost:5000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                var urls = Configuration.GetValue<string>("OriginUrl").Trim().Split(';');
+                builder.WithOrigins(urls).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
             });
         });
 

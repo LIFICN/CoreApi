@@ -18,7 +18,7 @@ public class ExceptionFilter : IExceptionFilter, IAsyncExceptionFilter
             Log.Error("{Message} | {Source}", message, source);
 
         context.ExceptionHandled = true;  //指示该异常已处理
-        context.Result = new ContentResult { Content = json, StatusCode = 500, ContentType = "application/json" };
+        context.Result = new ContentResult() { Content = json, StatusCode = 500, ContentType = "application/json" };
     }
 
     public Task OnExceptionAsync(ExceptionContext context)

@@ -25,16 +25,6 @@ public class TestController : BaseController
     }
 
     /// <summary>
-    /// 依赖注入测试
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("di")]
-    public string DI()
-    {
-        return testRepository.SayDI("DI,Success!");
-    }
-
-    /// <summary>
     /// EF Core 多表分页查询测试
     /// </summary>
     /// <returns></returns>

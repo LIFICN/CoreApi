@@ -16,8 +16,6 @@ public class TestRepository : BaseRepository<TestEntity1>, ITestRepository
     {
     }
 
-    public string SayDI(string message) => message;
-
     public override async Task<(List<TestEntity1>, int)> GetListAsync(Expression<Func<TestEntity1, bool>> expression, int pageIndex, int pageSize, bool isNoTracking = true)
     {
         using var trans = base.BeginTransaction();
