@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CoreApi.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using CoreApi.Repositories.Interfaces;
 
 namespace CoreApi.Controllers;
 
@@ -15,12 +14,12 @@ namespace CoreApi.Controllers;
 [ApiVersionNeutral]
 public class TestController : BaseController
 {
-    private readonly ITestRepository testRepository;
+    private readonly ITestServicecs testService;
     private readonly HttpClient httpClient;
 
-    public TestController(ITestRepository _testService, IHttpClientFactory httpClientFactory)
+    public TestController(ITestServicecs _testService, IHttpClientFactory httpClientFactory)
     {
-        testRepository = _testService;
+        testService = _testService;
         httpClient = httpClientFactory.CreateClient();
     }
 
@@ -31,19 +30,8 @@ public class TestController : BaseController
     [HttpGet("ef-page")]
     public async Task<IActionResult> EFPage(int pageIndex, int pageSize)
     {
-        (dynamic data, int total) = await testRepository.GetListAsync(null, pageIndex, pageSize);
+        (dynamic data, int total) = await testService.GetListAsync(pageIndex, pageSize);
         return Ok(new { data, total });
-    }
-
-    /// <summary>
-    /// 获取客户端IP
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("getIP")]
-    public IActionResult GetIP()
-    {
-        var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
-        return Ok(ip);
     }
 
     /// <summary>
@@ -84,4 +72,11 @@ public class TestController : BaseController
         var res = await httpClient.GetStringAsync(api).ConfigureAwait(false);
         return Ok(res);
     }
+
+    /// <summary>
+    /// 依赖注入测试
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("testDI")]
+    public IActionResult TestDI() => Ok(testService.TestDI("test DI success"));
 }

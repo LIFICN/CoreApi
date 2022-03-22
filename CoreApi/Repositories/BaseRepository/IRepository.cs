@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace CoreApi.Repositories;
+namespace CoreApi.Repositories.BaseRepository;
 
 public interface IRepository<T> where T : class
 {

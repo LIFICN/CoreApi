@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace CoreApi.Repositories;
+namespace CoreApi.Data;
 
 public class CoreDbContext : DbContext
 {
@@ -12,7 +12,7 @@ public class CoreDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var models = Assembly.Load("CoreApi.Models").GetTypes()
+        var models = Assembly.Load("CoreApi").GetTypes()
                    .Where(d => d.CustomAttributes.FirstOrDefault(
                        x => x.AttributeType.Namespace.Contains("System.ComponentModel")) != null && d.IsClass);
 

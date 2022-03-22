@@ -1,4 +1,5 @@
 ﻿using CoreApi.Models;
+using CoreApi.Repositories.BaseRepository;
 
 namespace CoreApi.Repositories.Interfaces;
 

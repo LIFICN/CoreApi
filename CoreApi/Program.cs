@@ -1,9 +1,9 @@
-﻿using CoreApi.Extensions;
+﻿using CoreApi.Data;
+using CoreApi.Extensions;
 using CoreApi.Filters;
 using CoreApi.Middleware;
-using CoreApi.Repositories;
+using CoreApi.Repositories.BaseRepository;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,12 +81,6 @@ public class Program
 
     private static void BuildServices(IServiceCollection services)
     {
-        //反向代理时获取真实IP
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        });
-
         //跨域处理
         services.AddCors(option =>
         {
@@ -118,7 +112,7 @@ public class Program
         });
 
         //批量依赖注入
-        services.AddScoped("CoreApi.Repositories", true);
+        services.AddScoped("CoreApi", true);
         services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
         //添加jwt支持
@@ -141,9 +135,6 @@ public class Program
     {
         //异常处理中间件,可处理管道异常
         app.UseMiddleware<ExceptionMiddleware>();
-
-        //反向代理时获取真实IP
-        app.UseForwardedHeaders();
 
         //使用跨域策略
         app.UseCors(CorsName);

@@ -1,5 +1,7 @@
-﻿using CoreApi.Extensions;
+﻿using CoreApi.Data;
+using CoreApi.Extensions;
 using CoreApi.Models;
+using CoreApi.Repositories.BaseRepository;
 using CoreApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
