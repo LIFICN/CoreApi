@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace CoreApi.Extensions;
@@ -18,8 +19,8 @@ public static class JsonExtension
         };
 
         //添加相关类型序列化转换器
-        options.Converters.Add(new DateTimeJsonConverter());
-        options.Converters.Add(new DateTimeNullableJsonConverter());
+        options.Converters.Add(new GenericJsonConverter<DateTime>());
+        options.Converters.Add(new GenericJsonConverter<DateTime?>());
         SerializerOptions = options;
     }
 
