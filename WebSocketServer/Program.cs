@@ -82,21 +82,24 @@ public class Program
                 Console.WriteLine($"{id} opened");
                 return Task.CompletedTask;
             };
+
             options.OnMessage = async (context, webSocketMsgResult, message, file) =>
             {
-                var msgType = webSocketMsgResult.MessageType;
+                WebSocketMessageType msgType = webSocketMsgResult.MessageType;
 
                 if (msgType == WebSocketMessageType.Text)
                 {
                     Console.WriteLine($"received {context.Connection.Id}: {message}");
                     await webSocketMsgResult.WebSocket.SendAsync(message).ConfigureAwait(false);
                 }
-                else if (msgType == WebSocketMessageType.Binary)
+
+                if (msgType == WebSocketMessageType.Binary)
                 {
                     Console.WriteLine($"file received {file.Length / 1024}KB");
                     if (webSocketMsgResult.EndOfMessage) Console.WriteLine("file received completed");
                 }
             };
+
             options.OnClose = (context, webSocket) =>
             {
                 string id = context.Connection.Id;
@@ -104,6 +107,7 @@ public class Program
                 Console.WriteLine($"{id} closed");
                 return Task.CompletedTask;
             };
+
             options.OnException = (context, webSocket, ex) =>
             {
                 string id = context.Connection.Id;
