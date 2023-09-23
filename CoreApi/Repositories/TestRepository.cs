@@ -1,5 +1,5 @@
 ﻿using CoreApi.Data;
-using CoreApi.Extensions;
+using CommonExtensions;
 using CoreApi.Models;
 using CoreApi.Repositories.BaseRepository;
 using CoreApi.Repositories.Interfaces;

@@ -1,4 +1,4 @@
-﻿using CoreApi.Extensions;
+﻿using CommonExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Serilog;

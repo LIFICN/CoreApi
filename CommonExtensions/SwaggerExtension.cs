@@ -9,7 +9,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace CoreApi.Extensions;
+namespace CommonExtensions;
 
 public static class SwaggerExtension
 {

@@ -57,23 +57,6 @@ public class TestController : BaseController
     }
 
     /// <summary>
-    /// 根据经纬度查询具体位置信息
-    /// </summary>
-    /// <param name="lng">经度</param>
-    /// <param name="lat">纬度</param>
-    /// <returns></returns>
-    [HttpGet("reverseGeocoding")]
-    public async Task<IActionResult> ReverseGeocoding(string lng, string lat)
-    {
-        if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lng))
-            return BadRequest("经纬度不能为空");
-
-        string api = $"https://api.map.baidu.com/reverse_geocoding/v3/?ak=HiQwVOsgoVBbq0DNw6vT6WtfrPCGEc6R&output=json&coordtype=wgs84ll&location={lat},{lng}";
-        var res = await httpClient.GetStringAsync(api).ConfigureAwait(false);
-        return Ok(res);
-    }
-
-    /// <summary>
     /// 依赖注入测试
     /// </summary>
     /// <returns></returns>

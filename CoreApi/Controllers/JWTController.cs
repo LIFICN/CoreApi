@@ -1,4 +1,4 @@
-﻿using CoreApi.Extensions;
+﻿using CommonExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

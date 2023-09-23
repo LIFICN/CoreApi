@@ -1,4 +1,4 @@
-﻿using CoreApi.Extensions;
+﻿using CommonExtensions;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using System;
