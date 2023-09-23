@@ -1,4 +1,4 @@
-﻿using CommonExtensions;
+﻿using CommonEx;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

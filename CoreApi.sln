@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreApi", "CoreApi\CoreApi.csproj", "{42BCB390-1306-4694-8F2F-39786A7D50EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonExtensions", "CommonExtensions\CommonExtensions.csproj", "{DFFDCF50-E959-45BC-AF02-9A6B30787A4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonEx", "CommonEx\CommonEx.csproj", "{DFFDCF50-E959-45BC-AF02-9A6B30787A4B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketServer", "WebSocketServer\WebSocketServer.csproj", "{5B042116-0E4A-4CC4-AB6E-00F69262179A}"
 EndProject

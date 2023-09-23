@@ -2,7 +2,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace CommonExtensions;
+namespace CommonEx;
 
 public static class JsonExtension
 {

@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace CommonExtensions;
+namespace CommonEx;
 
 public static class JwtExtension
 {

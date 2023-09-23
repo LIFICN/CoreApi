@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CommonExtensions;
+namespace CommonEx;
 
 public class GenericJsonConverter<T> : JsonConverter<T>
 {

@@ -1,5 +1,5 @@
 ﻿using CoreApi.Data;
-using CommonExtensions;
+using CommonEx;
 using CoreApi.Filters;
 using CoreApi.Middleware;
 using CoreApi.Repositories.BaseRepository;

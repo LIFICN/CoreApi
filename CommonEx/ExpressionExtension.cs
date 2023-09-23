@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace CommonExtensions;
+namespace CommonEx;
 
 internal class ParameterRebinder : ExpressionVisitor
 {

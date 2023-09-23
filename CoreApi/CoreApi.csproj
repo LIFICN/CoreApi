@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommonExtensions\CommonExtensions.csproj" />
+    <ProjectReference Include="..\CommonEx\CommonEx.csproj" />
   </ItemGroup>
 
 </Project>

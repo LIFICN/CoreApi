@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace CommonExtensions;
+namespace CommonEx;
 
 public static class DIExtension
 {
